@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "705714187579",
+    "project_id": "parking-madrid-fc293",
+    "storage_bucket": "parking-madrid-fc293.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705714187579:android:4d4c976457699f56dedb1e",
+        "android_client_info": {
+          "package_name": "com.example.parkingmadrid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv63rkt14Gbr_yXtlgJ6RogFrfqzTSjV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
