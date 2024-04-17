@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Parking Madrid</string>
+    <string name="default_web_client_id">clienteid.apps.googleusercontent.com</string>
 </resources>
