@@ -6,9 +6,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/icono2"
+        android:icon="@drawable/icono"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/icono2"
+        android:roundIcon="@drawable/icono"
         android:supportsRtl="true"
         android:theme="@style/Theme.ParkingMadrid"
         tools:targetApi="34">

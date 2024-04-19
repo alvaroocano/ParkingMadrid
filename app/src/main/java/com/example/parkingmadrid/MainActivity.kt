@@ -21,6 +21,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        val btnRegistro: Button = findViewById(R.id.buttonReg)
+        btnRegistro.setOnClickListener {
+            val intent = Intent(this, Registro::class.java)
+            startActivity(intent)
+        }
+
         mAuth = FirebaseAuth.getInstance()
 
         val buttonLoginGoogle = findViewById<ImageButton>(R.id.buttonLoginGoogle)

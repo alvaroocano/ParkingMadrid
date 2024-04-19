@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,60 +15,95 @@
         android:text="Registro"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_centerHorizontal="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="24dp"/>
 
     <EditText
         android:id="@+id/editTextFirstName"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Nombre"
+        android:drawableStart="@drawable/name"
+        android:drawablePadding="8dp"
+        android:hint="Nombre y Apellidos"
         android:inputType="textPersonName"
-        android:layout_below="@id/textViewTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
     <EditText
-        android:id="@+id/editTextLastName"
-        android:layout_width="match_parent"
+        android:id="@+id/editTextEmail"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Apellidos"
-        android:inputType="textPersonName"
-        android:layout_below="@id/editTextFirstName"
+        android:drawableStart="@drawable/arroba"
+        android:drawablePadding="8dp"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        app:layout_constraintTop_toBottomOf="@+id/editTextFirstName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
     <EditText
         android:id="@+id/editTextUsername"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:drawableStart="@drawable/user2"
+        android:drawablePadding="8dp"
         android:hint="Nombre de usuario"
         android:inputType="text"
-        android:layout_below="@id/editTextLastName"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
 
     <EditText
         android:id="@+id/editTextDOB"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:drawableStart="@drawable/birthday"
+        android:drawablePadding="8dp"
         android:hint="Fecha de nacimiento (DD/MM/AAAA)"
         android:inputType="date"
-        android:layout_below="@id/editTextUsername"
+        app:layout_constraintTop_toBottomOf="@+id/editTextUsername"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDOB"
+        android:layout_marginTop="16dp"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleDrawable="@drawable/view">
 
     <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:drawableStart="@drawable/padlock2"
+        android:drawablePadding="8dp"
         android:hint="Contraseña"
-        android:inputType="textPassword"
-        android:layout_below="@id/editTextDOB"
-        android:layout_marginTop="16dp"/>
+        android:inputType="textPassword"/>
 
-    <Button
-        android:id="@+id/buttonRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Registrarse"
-        android:layout_below="@id/editTextPassword"
-        android:layout_marginTop="24dp"/>
+</com.google.android.material.textfield.TextInputLayout>
 
-</RelativeLayout>
+<Button
+android:id="@+id/buttonRegister"
+android:layout_width="200dp"
+android:layout_height="wrap_content"
+android:text="Registrarse"
+android:background="@drawable/boton_redondeado"
+android:textColor="#FFFFFF"
+app:layout_constraintTop_toBottomOf="@+id/textInputLayoutPassword"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+android:layout_marginTop="24dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
