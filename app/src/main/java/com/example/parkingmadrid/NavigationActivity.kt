@@ -1,8 +1,7 @@
-package com.example.parkingmadrid.ui.theme
+package com.example.parkingmadrid
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.parkingmadrid.R
 
 class NavigationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

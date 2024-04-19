@@ -12,7 +12,20 @@
           "package_name": "com.example.parkingmadrid"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "705714187579-qjor539fagqh50crsf3fqq46fjm9sutn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.parkingmadrid",
+            "certificate_hash": "0b01464f2c455758c839a18fd38290c047fd5a88"
+          }
+        },
+        {
+          "client_id": "705714187579-7le8m6qon4bkbc9ig2j6n76ioi9c1j6q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDv63rkt14Gbr_yXtlgJ6RogFrfqzTSjV0"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "705714187579-7le8m6qon4bkbc9ig2j6n76ioi9c1j6q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

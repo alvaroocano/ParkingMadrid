@@ -73,13 +73,17 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Inicio de sesión exitoso
                     val user = mAuth.currentUser
-                    // Ir a la siguiente actividad o realizar otras acciones
+                    // Ir a la siguiente actividad
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    finish() // Finalizar la actividad actual si no se desea volver atrás
                 } else {
                     // Manejar errores
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
     }
+
 
     companion object {
         private const val RC_SIGN_IN = 9001
