@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:layout_centerHorizontal="true"> <!-- Alinea al centro horizontal -->
+    android:layout_centerHorizontal="true">
 
     <EditText
         android:id="@+id/editTextUsername"
@@ -28,31 +28,53 @@
         android:layout_below="@id/editTextPassword"
         android:layout_marginBottom="4dp"/>
 
-    <LinearLayout
-        android:layout_width="197dp"
-        android:layout_height="66dp"
+    <TextView
+        android:id="@+id/textViewOr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="o"
+        android:textSize="18sp"
+        android:textStyle="bold"
         android:layout_below="@id/buttonLogin"
-        android:layout_marginTop="15dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registrarse"
+        android:layout_below="@id/textViewOr"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="198dp"
+        android:layout_height="84dp"
+        android:layout_below="@id/buttonRegister"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="95dp"
+        android:layout_marginTop="21dp"
         android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/buttonLoginGoogle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:src="@drawable/google"
-        android:background="@drawable/rounded_button_background"
-        android:contentDescription="@string/google_login_button"
-        android:padding="16dp"
-        android:layout_marginBottom="4dp"/>
+        <ImageButton
+            android:id="@+id/buttonLoginGoogle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_button_background"
+            android:contentDescription="@string/google_login_button"
+            android:padding="16dp"
+            android:src="@drawable/google" />
 
         <ImageButton
             android:id="@+id/buttonLoginFacebook"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/rounded_button_background"
             android:contentDescription="@string/facebook_login_button"
@@ -60,4 +82,4 @@
             android:src="@drawable/facebook" />
     </LinearLayout>
 
-    </RelativeLayout>
+</RelativeLayout>
