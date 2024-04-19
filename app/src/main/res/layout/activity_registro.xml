@@ -8,6 +8,17 @@
     android:padding="16dp"
     tools:context=".Registro">
 
+    <ImageView
+        android:id="@+id/imageViewAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/parking"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
@@ -95,7 +106,7 @@
 </com.google.android.material.textfield.TextInputLayout>
 
 <Button
-android:id="@+id/buttonRegister"
+android:id="@+id/buttonRegistrarse"
 android:layout_width="200dp"
 android:layout_height="wrap_content"
 android:text="Registrarse"

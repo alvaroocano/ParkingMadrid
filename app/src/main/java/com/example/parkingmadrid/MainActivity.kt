@@ -3,6 +3,7 @@ package com.example.parkingmadrid
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        val btnRegistro: Button = findViewById(R.id.buttonReg)
+        val btnRegistro: Button = findViewById(R.id.buttonRegister)
         btnRegistro.setOnClickListener {
             val intent = Intent(this, Registro::class.java)
             startActivity(intent)
