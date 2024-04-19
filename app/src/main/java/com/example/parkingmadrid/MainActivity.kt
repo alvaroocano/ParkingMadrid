@@ -3,9 +3,8 @@ package com.example.parkingmadrid
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import com.example.parkingmadrid.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,8 +23,9 @@ class MainActivity : AppCompatActivity() {
 
         mAuth = FirebaseAuth.getInstance()
 
-        val signInButton = findViewById<Button>(R.id.buttonLoginGoogle)
-        signInButton.setOnClickListener {
+        val buttonLoginGoogle = findViewById<ImageButton>(R.id.buttonLoginGoogle)
+
+        buttonLoginGoogle.setOnClickListener {
             signInWithGoogle()
         }
 
@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
     }
 
     private fun signInWithGoogle() {

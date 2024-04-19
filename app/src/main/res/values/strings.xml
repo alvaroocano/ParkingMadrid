@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Parking Madrid</string>
     <string name="default_web_client_id">clienteid.apps.googleusercontent.com</string>
+    <string name="google_login_button">Iniciar sesión con Google</string>
+    <string name="google_logo_description">Descripción del logo de Google</string>
+    <string name="facebook_login_button">Descripción del logo de Facebook</string>
 </resources>
