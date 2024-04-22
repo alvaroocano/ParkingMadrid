@@ -4,11 +4,21 @@
     android:padding="16dp"
     android:layout_centerHorizontal="true">
 
+    <ImageView
+        android:id="@+id/imageLogo"
+        android:layout_width="182dp"
+        android:layout_height="171dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/icono" />
+
     <EditText
         android:id="@+id/editTextUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Usuario"
+        android:layout_below="@id/imageLogo"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"/>
 
     <EditText
