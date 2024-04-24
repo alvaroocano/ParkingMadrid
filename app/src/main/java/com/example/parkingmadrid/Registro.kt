@@ -1,52 +1,27 @@
 package com.example.parkingmadrid
 
 import android.app.DatePickerDialog
-import android.graphics.SurfaceTexture
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.view.Surface
-import android.view.TextureView
 import android.widget.DatePicker
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import java.io.InputStream
 import java.util.*
 
 class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
-    private lateinit var textureViewBackground: TextureView
-    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var gifView: GifView
     private lateinit var editTextDOB: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro)
 
-        // Inicializar TextureView
-        textureViewBackground = findViewById(R.id.textureViewBackground)
+        // Inicializar GifView
+        gifView = findViewById(R.id.gifView)
 
         // Inicializar EditText para la fecha de nacimiento
         editTextDOB = findViewById(R.id.editTextDOB)
         editTextDOB.setOnClickListener { showDatePickerDialog() }
-
-        // Configurar el listener de SurfaceTexture para el TextureView
-        textureViewBackground.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                val surface = Surface(surface)
-                mediaPlayer = MediaPlayer.create(applicationContext, R.drawable.parking)
-                mediaPlayer.setSurface(surface)
-                mediaPlayer.isLooping = true
-                mediaPlayer.start()
-            }
-
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
-
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                mediaPlayer.stop()
-                mediaPlayer.release()
-                return true
-            }
-
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
-        }
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
