@@ -8,8 +8,6 @@ import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.*
-import com.facebook.FacebookSdk
-import com.facebook.appevents.AppEventsLogger
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -29,9 +27,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
-        FacebookSdk.sdkInitialize(applicationContext)
-        AppEventsLogger.activateApp(application)
 
         val btnRegistro: Button = findViewById(R.id.buttonRegister)
         btnRegistro.setOnClickListener {
@@ -70,8 +65,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signInWithFacebook() {
+        // Configurar los permisos que necesitas
+        val permissions = listOf("email", "public_profile")
+
         // Iniciar sesión con Facebook
-        LoginManager.getInstance().logInWithReadPermissions(this, listOf("email", "public_profile"))
+        LoginManager.getInstance().logInWithReadPermissions(this, permissions)
     }
 
     private fun handleFacebookAccessToken(token: AccessToken) {
@@ -134,4 +132,5 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 }
+
 
