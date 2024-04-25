@@ -11,13 +11,16 @@
 
     <com.example.parkingmadrid.GifView
         android:id="@+id/gifView"
-        android:layout_width="352dp"
-        android:layout_height="215dp"
+        android:layout_width="248dp"
+        android:layout_height="196dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.793"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonRegistrarse"
+        app:layout_constraintVertical_bias="0.406" />
 
     <TextView
         android:id="@+id/textViewTitle"

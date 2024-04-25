@@ -6,4 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".NavigationActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="com.example.parkingmadrid.Fragmento1"
+        android:layout_width="166dp"
+        android:layout_height="141dp"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="122dp"
+        tools:layout_editor_absoluteY="475dp" />
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="194dp"
+        android:layout_height="184dp"
+        tools:layout_editor_absoluteX="108dp"
+        tools:layout_editor_absoluteY="93dp"
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>
