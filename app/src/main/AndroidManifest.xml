@@ -26,7 +26,7 @@
 
         <activity
             android:name=".NavigationActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".Registro"
             android:exported="false" />

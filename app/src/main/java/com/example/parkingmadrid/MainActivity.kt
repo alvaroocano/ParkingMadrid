@@ -8,7 +8,9 @@ import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.*
+import com.facebook.login.LoginBehavior
 import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -70,9 +72,34 @@ class MainActivity : AppCompatActivity() {
 
         // Iniciar sesión con Facebook
         LoginManager.getInstance().logInWithReadPermissions(this, permissions)
+
+        // Configurar el URI de redireccionamiento
+        val redirectUri = getString(R.string.facebook_redirect_url)
+        LoginManager.getInstance().setLoginBehavior(LoginBehavior.WEB_ONLY)
+        LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(result: LoginResult) {
+                val token = result.accessToken
+                if (token != null) {
+                    firebaseAuthWithFacebook(token)
+                } else {
+                    // Manejar el caso en que no se obtenga un token de acceso
+                    Log.e(TAG, "Facebook access token is null")
+                }
+            }
+
+            override fun onCancel() {
+                // Manejar la cancelación del inicio de sesión
+                Log.d(TAG, "Facebook login cancelled")
+            }
+
+            override fun onError(error: FacebookException) {
+                // Manejar errores durante el inicio de sesión
+                Log.e(TAG, "Facebook login error", error)
+            }
+        })
     }
 
-    private fun handleFacebookAccessToken(token: AccessToken) {
+    private fun firebaseAuthWithFacebook(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
@@ -132,5 +159,3 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 }
-
-
