@@ -57,7 +57,7 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
-    implementation ("com.facebook.android:facebook-android-sdk:16.0.0")
+    implementation ("com.facebook.android:facebook-android-sdk:latest.release")
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
