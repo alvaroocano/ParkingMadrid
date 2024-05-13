@@ -9,16 +9,6 @@
     tools:context=".Registro"
     android:layout_centerHorizontal="true">
 
-    <Button
-        android:id="@+id/buttonLogoutFacebook"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cerrar Sesión en Facebook"
-        android:layout_below="@id/buttonLoginFacebook"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        tools:ignore="NotSibling" />
-
     <TextView
         android:id="@+id/mostrarApi"
         android:layout_width="383dp"

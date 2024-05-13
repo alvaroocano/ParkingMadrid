@@ -1,27 +1,70 @@
 package com.example.parkingmadrid
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import java.io.InputStream
-import java.util.*
+import com.example.parkingmadrid.MainActivity
+import com.example.parkingmadrid.R
+import com.google.firebase.auth.FirebaseAuth
+import java.util.Calendar
 
 class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
-    private lateinit var gifView: GifView
+    private lateinit var mAuth: FirebaseAuth
+
+    private lateinit var editTextFirstName: EditText
+    private lateinit var editTextEmail: EditText
+    private lateinit var editTextUsername: EditText
     private lateinit var editTextDOB: EditText
+    private lateinit var editTextPassword: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro)
 
-        // Inicializar GifView
-        gifView = findViewById(R.id.gifView)
+        mAuth = FirebaseAuth.getInstance()
+
+        // Inicializar EditTexts
+        editTextFirstName = findViewById(R.id.editTextFirstName)
+        editTextEmail = findViewById(R.id.editTextEmail)
+        editTextUsername = findViewById(R.id.editTextUsername)
+        editTextDOB = findViewById(R.id.editTextDOB)
+        editTextPassword = findViewById(R.id.editTextPassword)
+
+        // Botón de registro
+        val btnRegistrarse: Button = findViewById(R.id.buttonRegistrarse)
+        btnRegistrarse.setOnClickListener {
+            registrarUsuario()
+        }
 
         // Inicializar EditText para la fecha de nacimiento
-        editTextDOB = findViewById(R.id.editTextDOB)
         editTextDOB.setOnClickListener { showDatePickerDialog() }
+    }
+
+    private fun registrarUsuario() {
+        val firstName = editTextFirstName.text.toString().trim()
+        val email = editTextEmail.text.toString().trim()
+        val username = editTextUsername.text.toString().trim()
+        val dob = editTextDOB.text.toString().trim()
+        val password = editTextPassword.text.toString()
+
+
+        // Registrar al usuario en Firebase Auth
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Registro exitoso
+                    val user = mAuth.currentUser
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+
+                }
+            }
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
