@@ -66,16 +66,40 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     // Método para manejar la respuesta y mostrar los datos en el TextView
-    private fun handleResponse(dataList: List<Any>?) {
+    private fun <T : Any> handleResponse(dataList: List<T>?) {
         val stringBuilder = StringBuilder()
-        dataList?.forEach { item ->
-            stringBuilder.append(item.toString()) // Aquí puedes personalizar cómo quieres mostrar cada elemento
-            stringBuilder.append("\n") // Agrega un salto de línea después de cada elemento
+
+        dataList?.forEachIndexed { index, item ->
+            val name: String = when (item) {
+                is ParkingInfo -> item.name ?: "No hay información del nombre del parking"
+                is ParkingInfoWithoutOccupation -> item.name ?: "No hay información del nombre del parking"
+                else -> "Nombre del parking no disponible"
+            }
+
+            val address: String = when (item) {
+                is ParkingInfo -> item.address ?: "No hay información de la calle"
+                is ParkingInfoWithoutOccupation -> item.address ?: "No hay información de la calle"
+                else -> "Dirección no disponible"
+            }
+
+            val occupation: String = when (item) {
+                is ParkingInfo -> item.occupations?.firstOrNull()?.free.toString() ?: "No hay información de ocupación"
+                is ParkingInfoWithoutOccupation -> "No hay información de ocupación pero si"
+                else -> "Ocupación no disponible"
+            }
+
+            stringBuilder.append("Elemento ${index + 1}:\n")
+            stringBuilder.append("Calle: $address\n")
+            stringBuilder.append("Nombre del parking: $name\n")
+            stringBuilder.append("Ocupación: $occupation\n\n")
         }
 
         val combinedData = stringBuilder.toString()
         textView.text = combinedData
     }
+
+
+
 
     // Método para cerrar sesión en Facebook
     private fun signOutFromFacebook() {
