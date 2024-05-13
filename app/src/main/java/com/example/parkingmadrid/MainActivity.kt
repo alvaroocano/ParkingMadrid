@@ -87,28 +87,17 @@ class MainActivity : AppCompatActivity() {
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Inicio de sesión exitoso
-                    val user = mAuth.currentUser
-                    if (isFirstFacebookLogin) { // Si es la primera vez que inicia sesión con Facebook
-                        isFirstFacebookLogin = false // Marcar como false para futuros inicios de sesión
-                        // Ir a la siguiente actividad
-                        val intent = Intent(this, NavigationActivity::class.java)
-                        startActivity(intent)
-                        finish() // Finalizar la actividad actual si no se desea volver atrás
-                    } else {
-                        // No es la primera vez, manejar el inicio de sesión como de costumbre
-                    }
+                    // Inicio de sesión exitoso con Facebook
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    finish() // Finalizar la actividad actual si no se desea volver atrás
                 } else {
                     // Manejar errores
-                    if (task.exception is FirebaseAuthUserCollisionException) {
-                        // Manejar la fusión de cuentas
-                        handleUserCollision(task.exception as FirebaseAuthUserCollisionException, credential)
-                    } else {
-                        Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    }
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
     }
+
 
     private fun handleUserCollision(exception: FirebaseAuthUserCollisionException, credential: AuthCredential) {
         val email = exception.email
