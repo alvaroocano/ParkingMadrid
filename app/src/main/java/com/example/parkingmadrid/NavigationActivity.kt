@@ -1,7 +1,10 @@
 package com.example.parkingmadrid
-
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
@@ -15,21 +18,45 @@ class NavigationActivity : AppCompatActivity() {
 
     private lateinit var madridAPI: MadridAPI
     private lateinit var textView: TextView
+    private lateinit var editTextSearch: EditText
+    private lateinit var spinnerSearchCriteria: Spinner
+    private lateinit var dataList: List<Any> // Almacena todos los datos de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        textView = findViewById(R.id.mostrarApi) // Reemplaza "textView" con el ID correcto de tu TextView
+        textView = findViewById(R.id.mostrarApi)
+        editTextSearch = findViewById(R.id.editTextSearch)
+        spinnerSearchCriteria = findViewById(R.id.spinnerSearchCriteria)
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
+        // Obtener los datos de la API y almacenarlos
+        fetchData()
+
+        // Manejar el cambio de texto en el EditText para el filtrado automático
+        editTextSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val searchCriteria = spinnerSearchCriteria.selectedItem.toString()
+                val searchText = s.toString()
+                performSearch(searchCriteria, searchText)
+            }
+        })
+    }
+
+    // Método para obtener los datos de la API y almacenarlos
+    private fun fetchData() {
         val call = madridAPI.getParkingInfo("ES")
         call.enqueue(object : Callback<List<ParkingInfo>> {
             override fun onResponse(call: retrofit2.Call<List<ParkingInfo>>, response: retrofit2.Response<List<ParkingInfo>>) {
                 if (response.isSuccessful) {
-                    val parkingInfoList = response.body()
-                    handleResponse(parkingInfoList)
+                    dataList = response.body() ?: emptyList()
+                    handleResponse(dataList)
                 } else {
                     // Maneja la respuesta no exitosa aquí
                 }
@@ -39,29 +66,23 @@ class NavigationActivity : AppCompatActivity() {
                 // Maneja el fallo de la solicitud aquí
             }
         })
+    }
 
-        val callWithoutOccupation = madridAPI.getParkingInfoWithoutOccupation("ES")
-        callWithoutOccupation.enqueue(object : Callback<List<ParkingInfoWithoutOccupation>> {
-            override fun onResponse(call: retrofit2.Call<List<ParkingInfoWithoutOccupation>>, response: retrofit2.Response<List<ParkingInfoWithoutOccupation>>) {
-                if (response.isSuccessful) {
-                    val parkingInfoWithoutOccupationList = response.body()
-                    handleResponse(parkingInfoWithoutOccupationList)
-                } else {
-                    // Maneja la respuesta no exitosa aquí
-                }
-            }
-
-            override fun onFailure(call: retrofit2.Call<List<ParkingInfoWithoutOccupation>>, t: Throwable) {
-                // Maneja el fallo de la solicitud aquí
-            }
-        })
+    // Método para realizar el filtrado y mostrar los resultados
+    private fun performSearch(criteria: String, searchText: String) {
+        val filteredList = when (criteria) {
+            "Nombre" -> dataList.filterIsInstance<ParkingInfo>().filter { it.name?.contains(searchText, ignoreCase = true) ?: false }
+            "Calle" -> dataList.filterIsInstance<ParkingInfo>().filter { it.address?.contains(searchText, ignoreCase = true) ?: false }
+            else -> emptyList() // Manejar criterio desconocido o por defecto
+        }
+        handleResponse(filteredList)
     }
 
     // Método para manejar la respuesta y mostrar los datos en el TextView
-    private fun <T : Any> handleResponse(dataList: List<T>?) {
+    private fun handleResponse(dataList: List<Any>) {
         val stringBuilder = StringBuilder()
 
-        dataList?.forEachIndexed { index, item ->
+        dataList.forEachIndexed { index, item ->
             val name: String = when (item) {
                 is ParkingInfo -> item.name ?: "No hay información del nombre del parking"
                 is ParkingInfoWithoutOccupation -> item.name ?: "No hay información del nombre del parking"
@@ -90,9 +111,6 @@ class NavigationActivity : AppCompatActivity() {
         textView.text = combinedData
     }
 
-
-
-
     // Método para cerrar sesión en Facebook
     private fun signOutFromFacebook() {
         // Cerrar sesión con Facebook
@@ -105,3 +123,4 @@ class NavigationActivity : AppCompatActivity() {
         finish() // Finalizar la actividad actual si no se desea volver atrás
     }
 }
+
