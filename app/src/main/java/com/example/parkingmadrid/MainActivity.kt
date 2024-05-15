@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.*
@@ -20,15 +21,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
+    private lateinit var editTextEmail: EditText
+    private lateinit var editTextPassword: EditText
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        mAuth = FirebaseAuth.getInstance()
+
+        editTextEmail = findViewById(R.id.editTextUsername)
+        editTextPassword = findViewById(R.id.editTextPassword)
+
         val btnIniciarSesion: Button = findViewById(R.id.buttonLogin)
         btnIniciarSesion.setOnClickListener {
-            val intent = Intent(this, NavigationActivity::class.java)
-            startActivity(intent)
+            signInWithEmailAndPassword()
         }
 
         val btnRegistro: Button = findViewById(R.id.buttonRegister)
@@ -36,8 +43,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, Registro::class.java)
             startActivity(intent)
         }
-
-        mAuth = FirebaseAuth.getInstance()
 
         val buttonLoginGoogle = findViewById<ImageButton>(R.id.buttonLoginGoogle)
         buttonLoginGoogle.setOnClickListener {
@@ -60,6 +65,30 @@ class MainActivity : AppCompatActivity() {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
+    }
+
+    private fun signInWithEmailAndPassword() {
+        val email = editTextEmail.text.toString().trim()
+        val password = editTextPassword.text.toString()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            // Validación de campos
+            return
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Inicio de sesión exitoso
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    finish() // Finalizar la actividad actual si no se desea volver atrás
+                } else {
+                    // Manejar errores
+                    Log.w(TAG, "signInWithEmailAndPassword:failure", task.exception)
+                    // Mostrar mensaje de error al usuario
+                }
+            }
     }
 
     private fun signInWithGoogle() {
