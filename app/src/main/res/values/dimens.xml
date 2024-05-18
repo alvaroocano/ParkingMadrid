@@ -5,4 +5,5 @@
     <dimen name="card_height">60dp</dimen>
     <dimen name="card_elevation">50dp</dimen>
     <dimen name="card_stroke_width">2dp</dimen>
+    <dimen name="card_margin_bottom">8dp</dimen> <!-- Agrega el margen inferior aquí -->
 </resources>
