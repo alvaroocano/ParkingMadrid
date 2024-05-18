@@ -12,23 +12,31 @@ import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
 import com.example.parkingmadrid.Clases.ParkingInfoWithoutOccupation
 import com.facebook.login.LoginManager
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.textview.MaterialTextView
 import retrofit2.Callback
+import android.content.Context
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat
+import com.example.parkingmadrid.R
 
 class NavigationActivity : AppCompatActivity() {
 
     private lateinit var madridAPI: MadridAPI
-    private lateinit var textView: TextView
     private lateinit var editTextSearch: EditText
     private lateinit var spinnerSearchCriteria: Spinner
+    private lateinit var cardContainer: MaterialCardView
     private lateinit var dataList: List<Any> // Almacena todos los datos de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        textView = findViewById(R.id.mostrarApi)
         editTextSearch = findViewById(R.id.editTextSearch)
         spinnerSearchCriteria = findViewById(R.id.spinnerSearchCriteria)
+        cardContainer = findViewById(R.id.card)
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
@@ -78,38 +86,81 @@ class NavigationActivity : AppCompatActivity() {
         handleResponse(filteredList)
     }
 
-    // Método para manejar la respuesta y mostrar los datos en el TextView
+    // Método para manejar la respuesta y mostrar los datos en tarjetas (cards)
     private fun handleResponse(dataList: List<Any>) {
-        val stringBuilder = StringBuilder()
+        cardContainer.removeAllViews() // Limpiar las tarjetas existentes antes de agregar nuevas
+
+        var topMargin = 0 // Margen superior para el primer card
 
         dataList.forEachIndexed { index, item ->
-            val name: String = when (item) {
-                is ParkingInfo -> item.name ?: "No hay información del nombre del parking"
-                is ParkingInfoWithoutOccupation -> item.name ?: "No hay información del nombre del parking"
-                else -> "Nombre del parking no disponible"
-            }
+            val card = createCardForParking(this, item)
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams.setMargins(0, topMargin, 0, 0) // Establecer los márgenes
+            card.layoutParams = layoutParams
+            cardContainer.addView(card)
 
-            val address: String = when (item) {
-                is ParkingInfo -> item.address ?: "No hay información de la calle"
-                is ParkingInfoWithoutOccupation -> item.address ?: "No hay información de la calle"
-                else -> "Dirección no disponible"
-            }
-
-            val occupation: String = when (item) {
-                is ParkingInfo -> item.occupations?.firstOrNull()?.free.toString() ?: "No hay información de ocupación"
-                is ParkingInfoWithoutOccupation -> "No hay información de ocupación pero si"
-                else -> "Ocupación no disponible"
-            }
-
-            stringBuilder.append("Elemento ${index + 1}:\n")
-            stringBuilder.append("Calle: $address\n")
-            stringBuilder.append("Nombre del parking: $name\n")
-            stringBuilder.append("Ocupación: $occupation\n\n")
+            // Actualizar el margen superior para el siguiente card
+            topMargin += resources.getDimensionPixelSize(R.dimen.card_height)
         }
-
-        val combinedData = stringBuilder.toString()
-        textView.text = combinedData
     }
+
+
+    // Método para crear una tarjeta (card) para un elemento de parking
+    private fun createCardForParking(context: Context, item: Any): MaterialCardView {
+        val card = MaterialCardView(context)
+        val layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        )
+        layoutParams.setMargins(
+            resources.getDimensionPixelSize(R.dimen.card_margin),
+            resources.getDimensionPixelSize(R.dimen.card_margin),
+            resources.getDimensionPixelSize(R.dimen.card_margin),
+            0
+        )
+        card.layoutParams = layoutParams
+        card.cardElevation = resources.getDimensionPixelSize(R.dimen.card_elevation).toFloat()
+        card.strokeWidth = resources.getDimensionPixelSize(R.dimen.card_stroke_width)
+        card.strokeColor = ContextCompat.getColor(context, R.color.card_stroke_color)
+
+        val padding = resources.getDimensionPixelSize(R.dimen.card_content_padding)
+
+        val textViewName = MaterialTextView(context)
+        textViewName.text = when (item) {
+            is ParkingInfo -> item.name ?: "No hay información del nombre del parking"
+            is ParkingInfoWithoutOccupation -> item.name ?: "No hay información del nombre del parking"
+            else -> "Nombre del parking no disponible"
+        }
+        textViewName.setPadding(padding, padding, padding, padding)
+        textViewName.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
+        card.addView(textViewName)
+
+        val textViewAddress = MaterialTextView(context)
+        textViewAddress.text = when (item) {
+            is ParkingInfo -> item.address ?: "No hay información de la calle"
+            is ParkingInfoWithoutOccupation -> item.address ?: "No hay información de la calle"
+            else -> "Dirección no disponible"
+        }
+        textViewAddress.setPadding(padding, 0, padding, padding)
+        textViewAddress.setTextAppearance(android.R.style.TextAppearance_Material_Small)
+        card.addView(textViewAddress)
+
+        val textViewOccupation = MaterialTextView(context)
+        textViewOccupation.text = when (item) {
+            is ParkingInfo -> item.occupations?.firstOrNull()?.free.toString() ?: "No hay información de ocupación"
+            is ParkingInfoWithoutOccupation -> "No hay información de ocupación pero si"
+            else -> "Ocupación no disponible"
+        }
+        textViewOccupation.setPadding(padding, 0, padding, padding)
+        textViewOccupation.setTextAppearance(android.R.style.TextAppearance_Material_Small)
+        card.addView(textViewOccupation)
+
+        return card
+    }
+
 
     // Método para cerrar sesión en Facebook
     private fun signOutFromFacebook() {
@@ -123,4 +174,3 @@ class NavigationActivity : AppCompatActivity() {
         finish() // Finalizar la actividad actual si no se desea volver atrás
     }
 }
-
