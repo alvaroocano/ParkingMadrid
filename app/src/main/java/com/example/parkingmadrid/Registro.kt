@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import com.example.parkingmadrid.MainActivity
+import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import java.util.Calendar
@@ -27,7 +27,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         setContentView(R.layout.activity_registro)
 
         mAuth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance()
+        database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
 
         // Inicializar EditTexts
         editTextFirstName = findViewById(R.id.editTextFirstName)
@@ -53,6 +53,11 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val dob = editTextDOB.text.toString().trim()
         val password = editTextPassword.text.toString()
 
+        if (firstName.isEmpty() || email.isEmpty() || username.isEmpty() || dob.isEmpty() || password.isEmpty()) {
+            // Manejar el caso en que algún campo esté vacío
+            return
+        }
+
         // Registrar al usuario en Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -62,17 +67,22 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                     // Guardar los datos adicionales del usuario en Firebase Realtime Database
                     user?.let {
                         val userId = it.uid
-                        val userRef = database.getReference("users").child(userId)
-                        val userData = HashMap<String, Any>()
-                        userData["firstName"] = firstName
-                        userData["email"] = email
-                        userData["username"] = username
-                        userData["dob"] = dob
-                        userRef.setValue(userData)
+                        val usersRef = database.reference.child("users")
+
+                        val users = HashMap<String, User>()
+                        users[userId] = User(dob, firstName, username)
+
+                        usersRef.setValue(users).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Datos guardados exitosamente, redirigir a MainActivity
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                // Manejar errores al guardar datos
+                            }
+                        }
                     }
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
                 } else {
                     // Manejar errores de registro
                 }
@@ -94,4 +104,3 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         datePickerDialog.show()
     }
 }
-

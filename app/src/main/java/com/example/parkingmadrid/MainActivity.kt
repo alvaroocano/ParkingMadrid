@@ -14,6 +14,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
 
         mAuth = FirebaseAuth.getInstance()
+        FirebaseApp.initializeApp(this)
 
         editTextEmail = findViewById(R.id.editTextUsername)
         editTextPassword = findViewById(R.id.editTextPassword)
