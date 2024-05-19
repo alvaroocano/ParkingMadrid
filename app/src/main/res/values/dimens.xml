@@ -3,7 +3,8 @@
     <dimen name="card_margin">20dp</dimen>
     <dimen name="card_content_padding">16dp</dimen>
     <dimen name="card_height">60dp</dimen>
-    <dimen name="card_elevation">50dp</dimen>
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_elevation">8dp</dimen>
     <dimen name="card_stroke_width">2dp</dimen>
     <dimen name="card_margin_bottom">8dp</dimen> <!-- Agrega el margen inferior aquí -->
 </resources>

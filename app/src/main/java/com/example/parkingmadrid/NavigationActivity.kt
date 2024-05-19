@@ -29,7 +29,7 @@ class NavigationActivity : AppCompatActivity() {
     private lateinit var madridAPI: MadridAPI
     private lateinit var editTextSearch: EditText
     private lateinit var spinnerSearchCriteria: Spinner
-    private lateinit var cardContainer: MaterialCardView
+    private lateinit var cardContainer: LinearLayout
     private lateinit var dataList: List<ParkingInfo> // Almacena todos los datos de la API
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class NavigationActivity : AppCompatActivity() {
 
         editTextSearch = findViewById(R.id.editTextSearch)
         spinnerSearchCriteria = findViewById(R.id.spinnerSearchCriteria)
-        cardContainer = findViewById(R.id.card)
+        cardContainer = findViewById(R.id.cardContainer)
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
@@ -92,27 +92,17 @@ class NavigationActivity : AppCompatActivity() {
     private fun handleResponse(dataList: List<ParkingInfo>) {
         cardContainer.removeAllViews() // Limpiar las tarjetas existentes antes de agregar nuevas
 
-        var topMargin = 0 // Margen superior para el primer card
-
-        dataList.forEachIndexed { index, item ->
+        dataList.forEach { item ->
             val card = createCardForParking(this, item)
-            val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.setMargins(0, topMargin, 0, 0) // Establecer los márgenes
-            card.layoutParams = layoutParams
             cardContainer.addView(card)
-
-            // Actualizar el margen superior para el siguiente card
-            topMargin += resources.getDimensionPixelSize(R.dimen.card_height)
         }
     }
 
 
     // Método para crear una tarjeta (card) para un elemento de parking
     private fun createCardForParking(context: Context, item: ParkingInfo): View {
-        val cardView = findViewById<MaterialCardView>(R.id.card)
+        val inflater = LayoutInflater.from(context)
+        val cardView = inflater.inflate(R.layout.card_layout, null) as MaterialCardView
 
         val titleTextView = cardView.findViewById<TextView>(R.id.tittle)
         val secondaryTextView = cardView.findViewById<TextView>(R.id.seccondary)
@@ -121,7 +111,20 @@ class NavigationActivity : AppCompatActivity() {
         // Llena los campos con los datos del ParkingInfo
         titleTextView.text = item.name ?: "Nombre no disponible"
         secondaryTextView.text = item.address ?: "Dirección no disponible"
-        supportingTextView.text = (item.occupations ?: "Ocupación no disponible").toString()
+        // Formatea y asigna el texto para la ocupación
+        val occupationText = item.occupations?.firstOrNull()?.free?.let { freeSpaces ->
+            "Sitios libres: $freeSpaces"
+        } ?: "Ocupación no disponible"
+
+        supportingTextView.text = occupationText
+
+        // Configura bordes y sombras
+        cardView.apply {
+            cardElevation = 8f // Elevación para la sombra
+            radius = 16f // Radio de las esquinas
+            strokeWidth = 2 // Ancho del borde
+            strokeColor = ContextCompat.getColor(context, R.color.card_stroke_color) // Color del borde
+        }
 
         return cardView
     }
