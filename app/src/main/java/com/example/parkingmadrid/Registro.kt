@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
@@ -55,6 +56,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
         if (firstName.isEmpty() || email.isEmpty() || username.isEmpty() || dob.isEmpty() || password.isEmpty()) {
             // Manejar el caso en que algún campo esté vacío
+            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -67,12 +69,11 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                     // Guardar los datos adicionales del usuario en Firebase Realtime Database
                     user?.let {
                         val userId = it.uid
-                        val usersRef = database.reference.child("users")
+                        val usersRef = database.reference.child("users").child(userId)
 
-                        val users = HashMap<String, User>()
-                        users[userId] = User(dob, firstName, username)
+                        val userData = User(dob, firstName, username, email) // Agrega el campo de email
 
-                        usersRef.setValue(users).addOnCompleteListener { task ->
+                        usersRef.setValue(userData).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 // Datos guardados exitosamente, redirigir a MainActivity
                                 val intent = Intent(this, MainActivity::class.java)
@@ -80,11 +81,13 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                                 finish()
                             } else {
                                 // Manejar errores al guardar datos
+                                Toast.makeText(this, "Error al guardar datos del usuario", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 } else {
                     // Manejar errores de registro
+                    Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
                 }
             }
     }

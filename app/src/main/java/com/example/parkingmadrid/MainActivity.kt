@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.*
 import com.facebook.login.LoginManager
@@ -16,14 +17,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.*
+import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mAuth: FirebaseAuth
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var callbackManager: CallbackManager
-    private lateinit var editTextEmail: EditText
+    private lateinit var editTextUsernameOrEmail: EditText
     private lateinit var editTextPassword: EditText
+    private lateinit var database: FirebaseDatabase
+
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +35,14 @@ class MainActivity : AppCompatActivity() {
 
         mAuth = FirebaseAuth.getInstance()
         FirebaseApp.initializeApp(this)
+        database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
 
-        editTextEmail = findViewById(R.id.editTextUsername)
+        editTextUsernameOrEmail = findViewById(R.id.editTextUsername)
         editTextPassword = findViewById(R.id.editTextPassword)
 
         val btnIniciarSesion: Button = findViewById(R.id.buttonLogin)
         btnIniciarSesion.setOnClickListener {
-            signInWithEmailAndPassword()
+            signIn()
         }
 
         val btnRegistro: Button = findViewById(R.id.buttonRegister)
@@ -66,18 +71,28 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-
     }
 
-    private fun signInWithEmailAndPassword() {
-        val email = editTextEmail.text.toString().trim()
+    private fun signIn() {
+        val usernameOrEmail = editTextUsernameOrEmail.text.toString().trim()
         val password = editTextPassword.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (usernameOrEmail.isEmpty() || password.isEmpty()) {
             // Validación de campos
+            Toast.makeText(this, "Please enter both username/email and password", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Check if the input is an email
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
+            signInWithEmailAndPassword(usernameOrEmail, password)
+        } else {
+            // Assume input is a nickname and try to find corresponding email
+            findUserByNick(usernameOrEmail, password)
+        }
+    }
+
+    private fun signInWithEmailAndPassword(email: String, password: String) {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -88,10 +103,37 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // Manejar errores
                     Log.w(TAG, "signInWithEmailAndPassword:failure", task.exception)
-                    // Mostrar mensaje de error al usuario
+                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
+    private fun findUserByNick(nickname: String, password: String) {
+        val usersRef = database.reference.child("users")
+        val query = usersRef.orderByChild("nickname").equalTo(nickname)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (userSnapshot in dataSnapshot.children) {
+                        val email = userSnapshot.child("email").getValue(String::class.java)
+                        if (email != null) {
+                            signInWithEmailAndPassword(email, password)
+                            return
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity, "Nickname not found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(this@MainActivity, "Database error.", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
 
     private fun signInWithGoogle() {
         val signInIntent = mGoogleSignInClient.signInIntent
@@ -127,7 +169,6 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-
     private fun handleUserCollision(exception: FirebaseAuthUserCollisionException, credential: AuthCredential) {
         val email = exception.email
         if (email != null) {
@@ -161,7 +202,6 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Fusion de cuentas exitosa
-                        // Informar al usuario o continuar con el flujo de la aplicación
                     } else {
                         // Manejar error en la fusión de cuentas
                     }
@@ -218,5 +258,3 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 }
-
-
