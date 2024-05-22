@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/user2"
             android:drawablePadding="8dp"
-            android:hint="Nombre de usuario"
+            android:hint="Usuario/Email"
             android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>

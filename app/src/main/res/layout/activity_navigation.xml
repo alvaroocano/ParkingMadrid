@@ -9,7 +9,8 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -20,6 +21,33 @@
             app:navigationIcon="@drawable/ic_menu_20dp"
             style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
+        <!-- Buscador -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <EditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Buscar..."
+                android:padding="8dp"
+                android:background="?android:attr/editTextBackground"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+
+            <Spinner
+                android:id="@+id/spinnerSearchCriteria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/search_criteria"
+                android:padding="8dp"
+                android:background="@drawable/spinner_background"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+        </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -34,19 +62,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/editTextSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Buscar..." />
-
-            <Spinner
-                android:id="@+id/spinnerSearchCriteria"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:entries="@array/search_criteria" />
-
             <LinearLayout
                 android:id="@+id/cardContainer"
                 android:layout_width="match_parent"
@@ -59,4 +74,10 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,15 +1,19 @@
 package com.example.parkingmadrid
+
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import com.google.android.material.appbar.MaterialToolbar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
+import androidx.core.view.isVisible
 import com.example.parkingmadrid.Clases.ParkingInfoWithoutOccupation
 import com.facebook.login.LoginManager
 import com.google.android.material.button.MaterialButton
@@ -20,9 +24,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import com.example.parkingmadrid.R
+import retrofit2.Response
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -30,22 +36,25 @@ class NavigationActivity : AppCompatActivity() {
     private lateinit var editTextSearch: EditText
     private lateinit var spinnerSearchCriteria: Spinner
     private lateinit var cardContainer: LinearLayout
-    private lateinit var dataList: List<ParkingInfo> // Almacena todos los datos de la API
+    private lateinit var progressBar: ProgressBar
+    private lateinit var dataList: List<ParkingInfo>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
+        val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
+        //setSupportActionBar(toolbar)
+
         editTextSearch = findViewById(R.id.editTextSearch)
         spinnerSearchCriteria = findViewById(R.id.spinnerSearchCriteria)
         cardContainer = findViewById(R.id.cardContainer)
+        progressBar = findViewById(R.id.progressBar)
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
-        // Obtener los datos de la API y almacenarlos
         fetchData()
 
-        // Manejar el cambio de texto en el EditText para el filtrado automático
         editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -57,13 +66,30 @@ class NavigationActivity : AppCompatActivity() {
                 performSearch(searchCriteria, searchText)
             }
         })
+
+        toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.search -> {
+                    toggleSearchVisibility()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
-    // Método para obtener los datos de la API y almacenarlos
+    private fun toggleSearchVisibility() {
+        val isVisible = editTextSearch.isVisible
+        editTextSearch.isVisible = !isVisible
+        spinnerSearchCriteria.isVisible = !isVisible
+    }
+
     private fun fetchData() {
+        progressBar.visibility = View.VISIBLE
         val call = madridAPI.getParkingInfo("ES")
         call.enqueue(object : Callback<List<ParkingInfo>> {
-            override fun onResponse(call: retrofit2.Call<List<ParkingInfo>>, response: retrofit2.Response<List<ParkingInfo>>) {
+            override fun onResponse(call: retrofit2.Call<List<ParkingInfo>>, response: Response<List<ParkingInfo>>) {
+                progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     dataList = response.body() ?: emptyList()
                     handleResponse(dataList)
@@ -73,25 +99,23 @@ class NavigationActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: retrofit2.Call<List<ParkingInfo>>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 // Maneja el fallo de la solicitud aquí
             }
         })
     }
 
-    // Método para realizar el filtrado y mostrar los resultados
     private fun performSearch(criteria: String, searchText: String) {
         val filteredList = when (criteria) {
-            "Nombre" -> dataList.filterIsInstance<ParkingInfo>().filter { it.name?.contains(searchText, ignoreCase = true) ?: false }
-            "Calle" -> dataList.filterIsInstance<ParkingInfo>().filter { it.address?.contains(searchText, ignoreCase = true) ?: false }
-            else -> emptyList() // Manejar criterio desconocido o por defecto
+            "Nombre" -> dataList.filter { it.name?.contains(searchText, ignoreCase = true) == true }
+            "Calle" -> dataList.filter { it.address?.contains(searchText, ignoreCase = true) == true }
+            else -> emptyList()
         }
         handleResponse(filteredList)
     }
 
-    // Método para manejar la respuesta y mostrar los datos en tarjetas (cards)
     private fun handleResponse(dataList: List<ParkingInfo>) {
-        cardContainer.removeAllViews() // Limpiar las tarjetas existentes antes de agregar nuevas
-
+        cardContainer.removeAllViews()
         dataList.forEach { item ->
             val card = createCardForParking(this, item)
             cardContainer.addView(card)
