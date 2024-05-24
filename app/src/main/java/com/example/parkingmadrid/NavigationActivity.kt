@@ -1,33 +1,31 @@
 package com.example.parkingmadrid
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
-import com.google.android.material.appbar.MaterialToolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
-import androidx.core.view.isVisible
-import com.example.parkingmadrid.Clases.ParkingInfoWithoutOccupation
 import com.facebook.login.LoginManager
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textview.MaterialTextView
+import retrofit2.Call
 import retrofit2.Callback
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import androidx.core.content.ContextCompat
-import com.example.parkingmadrid.R
 import retrofit2.Response
 
 class NavigationActivity : AppCompatActivity() {
@@ -88,7 +86,7 @@ class NavigationActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         val call = madridAPI.getParkingInfo("ES")
         call.enqueue(object : Callback<List<ParkingInfo>> {
-            override fun onResponse(call: retrofit2.Call<List<ParkingInfo>>, response: Response<List<ParkingInfo>>) {
+            override fun onResponse(call: Call<List<ParkingInfo>>, response: Response<List<ParkingInfo>>) {
                 progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     dataList = response.body() ?: emptyList()
@@ -98,7 +96,7 @@ class NavigationActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: retrofit2.Call<List<ParkingInfo>>, t: Throwable) {
+            override fun onFailure(call: Call<List<ParkingInfo>>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 // Maneja el fallo de la solicitud aquí
             }
@@ -122,8 +120,6 @@ class NavigationActivity : AppCompatActivity() {
         }
     }
 
-
-    // Método para crear una tarjeta (card) para un elemento de parking
     private fun createCardForParking(context: Context, item: ParkingInfo): View {
         val inflater = LayoutInflater.from(context)
         val cardView = inflater.inflate(R.layout.card_layout, null) as MaterialCardView
@@ -131,37 +127,36 @@ class NavigationActivity : AppCompatActivity() {
         val titleTextView = cardView.findViewById<TextView>(R.id.tittle)
         val secondaryTextView = cardView.findViewById<TextView>(R.id.seccondary)
         val supportingTextView = cardView.findViewById<TextView>(R.id.supporting)
+        val buttonGoTo = cardView.findViewById<MaterialButton>(R.id.button_go_to)
 
         // Llena los campos con los datos del ParkingInfo
         titleTextView.text = item.name ?: "Nombre no disponible"
         secondaryTextView.text = item.address ?: "Dirección no disponible"
-        // Formatea y asigna el texto para la ocupación
         val occupationText = item.occupations?.firstOrNull()?.free?.let { freeSpaces ->
             "Sitios libres: $freeSpaces"
         } ?: "Ocupación no disponible"
-
         supportingTextView.text = occupationText
 
         // Configura bordes y sombras
         cardView.apply {
-            cardElevation = 8f // Elevación para la sombra
-            radius = 16f // Radio de las esquinas
-            strokeWidth = 2 // Ancho del borde
-            strokeColor = ContextCompat.getColor(context, R.color.card_stroke_color) // Color del borde
+            cardElevation = 8f
+            radius = 16f
+            strokeWidth = 2
+            strokeColor = ContextCompat.getColor(context, R.color.card_stroke_color)
+        }
+
+        // Configura el botón "Ir a" para abrir Google Maps con las coordenadas
+        buttonGoTo.setOnClickListener {
+            val gmmIntentUri = Uri.parse("geo:${item.latitude},${item.longitude}?q=parking ${item.address}")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            if (mapIntent.resolveActivity(packageManager) != null) {
+                startActivity(mapIntent)
+            }
         }
 
         return cardView
     }
-
-//    private fun populateCards(dataList: List<ParkingInfo>) {
-//        for (item in dataList) {
-//            val cardView = createCardForParking(this, item)
-//            // Agrega la tarjeta al contenedor adecuado en tu diseño
-//            cardContainer.addView(cardView)
-//        }
-//    }
-
-
 
     // Método para cerrar sesión en Facebook
     private fun signOutFromFacebook() {
@@ -169,9 +164,8 @@ class NavigationActivity : AppCompatActivity() {
         LoginManager.getInstance().logOut()
 
         // Redirigir a la pantalla de inicio de sesión o a donde corresponda en tu aplicación
-        // Por ejemplo:
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish() // Finalizar la actividad actual si no se desea volver atrás
+        finish()
     }
 }
