@@ -12,6 +12,7 @@ import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import java.util.Calendar
+import java.util.regex.Pattern
 
 class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private lateinit var mAuth: FirebaseAuth
@@ -55,8 +56,27 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val password = editTextPassword.text.toString()
 
         if (firstName.isEmpty() || email.isEmpty() || username.isEmpty() || dob.isEmpty() || password.isEmpty()) {
-            // Manejar el caso en que algún campo esté vacío
             Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isValidEmail(email)) {
+            Toast.makeText(this, "Correo no válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isValidName(firstName)) {
+            Toast.makeText(this, "El nombre no debe contener caracteres especiales", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isValidDOB(dob)) {
+            Toast.makeText(this, "La fecha de nacimiento no puede ser posterior a la actual y debes ser mayor de edad", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isValidPassword(password)) {
+            Toast.makeText(this, "La contraseña debe tener al menos 6 caracteres, una mayúscula y un carácter especial", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -66,30 +86,58 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                 if (task.isSuccessful) {
                     // Registro exitoso
                     val user = mAuth.currentUser
-                    // Guardar los datos adicionales del usuario en Firebase Realtime Database
                     user?.let {
                         val userId = it.uid
                         val usersRef = database.reference.child("users").child(userId)
-
-                        val userData = User(dob, firstName, username, email) // Agrega el campo de email
+                        val userData = User(dob, firstName, username, email)
 
                         usersRef.setValue(userData).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                // Datos guardados exitosamente, redirigir a MainActivity
                                 val intent = Intent(this, MainActivity::class.java)
                                 startActivity(intent)
                                 finish()
                             } else {
-                                // Manejar errores al guardar datos
                                 Toast.makeText(this, "Error al guardar datos del usuario", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 } else {
-                    // Manejar errores de registro
                     Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    private fun isValidName(name: String): Boolean {
+        val regex = "^[a-zA-ZñÑáéíóúÁÉÍÓÚ ]+$"
+        return name.matches(regex.toRegex())
+    }
+
+    private fun isValidDOB(dob: String): Boolean {
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        val parts = dob.split("/")
+        if (parts.size != 3) return false
+
+        val day = parts[0].toIntOrNull() ?: return false
+        val month = parts[1].toIntOrNull() ?: return false
+        val year = parts[2].toIntOrNull() ?: return false
+
+        val userAge = currentYear - year
+        val isFutureDate = Calendar.getInstance().apply {
+            set(year, month - 1, day)
+        }.after(Calendar.getInstance())
+
+        return !isFutureDate && userAge >= 18
+    }
+
+    private fun isValidPassword(password: String): Boolean {
+        val passwordPattern = Pattern.compile("^(?=.*[A-Z])(?=.*[@#\$%^&+=!]).{6,}$")
+        return passwordPattern.matcher(password).matches()
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
@@ -104,6 +152,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(this, this, year, month, dayOfMonth)
+        datePickerDialog.datePicker.maxDate = calendar.timeInMillis // Deshabilitar fechas futuras
         datePickerDialog.show()
     }
 }
