@@ -79,7 +79,13 @@ class MainActivity : AppCompatActivity() {
 
         if (usernameOrEmail.isEmpty() || password.isEmpty()) {
             // Validación de campos
-            Toast.makeText(this, "Please enter both username/email and password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Por favor, ingrese tanto el nombre de usuario/correo electrónico como la contraseña", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!isValidInput(usernameOrEmail) || !isValidInput(password)) {
+            // Validación de inyección de código
+            Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -90,6 +96,12 @@ class MainActivity : AppCompatActivity() {
             // Assume input is a nickname and try to find corresponding email
             findUserByNick(usernameOrEmail, password)
         }
+    }
+
+    private fun isValidInput(input: String): Boolean {
+        // Validar que la entrada no contenga caracteres especiales potencialmente peligrosos
+        val regex = "^[a-zA-Z0-9@.]+$"
+        return input.matches(regex.toRegex())
     }
 
     private fun signInWithEmailAndPassword(email: String, password: String) {
@@ -103,8 +115,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // Manejar errores
                     Log.w(TAG, "signInWithEmailAndPassword:failure", task.exception)
-                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "signInWithEmailAndPassword:error", exception)
+                Toast.makeText(this, "Error al iniciar sesión. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -123,17 +139,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    Toast.makeText(this@MainActivity, "Nickname not found.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@MainActivity, "Database error.", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "findUserByNick:onCancelled", databaseError.toException())
+                Toast.makeText(this@MainActivity, "Error en la base de datos. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
         })
     }
-
-
 
     private fun signInWithGoogle() {
         val signInIntent = mGoogleSignInClient.signInIntent
@@ -165,7 +180,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // Manejar errores
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Toast.makeText(this, "Error de autenticación con Facebook. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "firebaseAuthWithFacebook:error", exception)
+                Toast.makeText(this, "Error al iniciar sesión con Facebook. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -180,6 +200,7 @@ class MainActivity : AppCompatActivity() {
                             // La dirección de correo electrónico ya está asociada con el proveedor actual,
                             // no es necesario fusionar cuentas
                             // Puedes informar al usuario o continuar con el inicio de sesión normal
+                            Toast.makeText(this, "Correo electrónico ya asociado con este proveedor.", Toast.LENGTH_SHORT).show()
                         } else {
                             // La dirección de correo electrónico ya está asociada con otra cuenta,
                             // se debe fusionar las cuentas
@@ -187,10 +208,18 @@ class MainActivity : AppCompatActivity() {
                         }
                     } else {
                         // Manejar error al obtener los proveedores de autenticación
+                        Log.e(TAG, "fetchSignInMethodsForEmail:failure", task.exception)
+                        Toast.makeText(this, "Error al verificar el método de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                     }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "fetchSignInMethodsForEmail:error", exception)
+                    Toast.makeText(this, "Error al verificar el método de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                 }
         } else {
             // No se proporcionó una dirección de correo electrónico, manejar el error en consecuencia
+            Log.e(TAG, "FirebaseAuthUserCollisionException: email is null")
+            Toast.makeText(this, "Error de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -201,13 +230,22 @@ class MainActivity : AppCompatActivity() {
             currentUser.linkWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Fusion de cuentas exitosa
+                        // Fusión de cuentas exitosa
+                        Toast.makeText(this, "Cuentas fusionadas exitosamente.", Toast.LENGTH_SHORT).show()
                     } else {
                         // Manejar error en la fusión de cuentas
+                        Log.e(TAG, "mergeAccounts:failure", task.exception)
+                        Toast.makeText(this, "Error al fusionar cuentas. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                     }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "mergeAccounts:error", exception)
+                    Toast.makeText(this, "Error al fusionar cuentas. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                 }
         } else {
             // No hay un usuario actualmente autenticado, manejar el error en consecuencia
+            Log.e(TAG, "mergeAccounts: no current user")
+            Toast.makeText(this, "Error de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -226,6 +264,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: ApiException) {
                 // Manejar errores
                 Log.w(TAG, "Google sign in failed", e)
+                Toast.makeText(this, "Error al iniciar sesión con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -248,8 +287,13 @@ class MainActivity : AppCompatActivity() {
                         handleUserCollision(task.exception as FirebaseAuthUserCollisionException, credential)
                     } else {
                         Log.w(TAG, "signInWithCredential:failure", task.exception)
+                        Toast.makeText(this, "Error de autenticación con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "firebaseAuthWithGoogle:error", exception)
+                Toast.makeText(this, "Error al iniciar sesión con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
     }
 

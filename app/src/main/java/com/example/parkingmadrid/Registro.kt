@@ -71,12 +71,12 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         }
 
         if (!isValidDOB(dob)) {
-            Toast.makeText(this, "La fecha de nacimiento no puede ser posterior a la actual y debes ser mayor de edad", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Debes ser mayor de edad", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (!isValidPassword(password)) {
-            Toast.makeText(this, "La contraseña debe tener al menos 6 caracteres, una mayúscula y un carácter especial", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Al menos 6 caracteres, una mayúscula y un carácter especial", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -147,12 +147,15 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
+
+        // Calcular la fecha de hoy, pero hace 18 años
+        calendar.add(Calendar.YEAR, -18)
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(this, this, year, month, dayOfMonth)
-        datePickerDialog.datePicker.maxDate = calendar.timeInMillis // Deshabilitar fechas futuras
+        datePickerDialog.datePicker.maxDate = Calendar.getInstance().timeInMillis // Deshabilitar fechas futuras
         datePickerDialog.show()
     }
 }
