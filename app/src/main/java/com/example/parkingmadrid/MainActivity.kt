@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (!isValidInput(usernameOrEmail) || !isValidInput(password)) {
+        if (!isValidUsernameOrEmail(usernameOrEmail) || !isValidPassword(password)) {
             // Validación de inyección de código
             Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
             return
@@ -98,9 +98,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isValidInput(input: String): Boolean {
-        // Validar que la entrada no contenga caracteres especiales potencialmente peligrosos
+    private fun isValidUsernameOrEmail(input: String): Boolean {
+        // Validar que la entrada no contenga caracteres especiales potencialmente peligrosos excepto @
         val regex = "^[a-zA-Z0-9@.]+$"
+        return input.matches(regex.toRegex())
+    }
+
+    private fun isValidPassword(input: String): Boolean {
+        // Validar que la contraseña contenga cualquier carácter excepto espacios
+        val regex = "^[^\\s]+$"
         return input.matches(regex.toRegex())
     }
 
