@@ -93,9 +93,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
                         usersRef.setValue(userData).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                val intent = Intent(this, MainActivity::class.java)
-                                startActivity(intent)
-                                finish()
+                                sendEmailVerification()
                             } else {
                                 Toast.makeText(this, "Error al guardar datos del usuario", Toast.LENGTH_SHORT).show()
                             }
@@ -103,6 +101,22 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                     }
                 } else {
                     Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun sendEmailVerification() {
+        val user = mAuth.currentUser
+        user?.sendEmailVerification()
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Correo de verificación enviado a ${user.email}", Toast.LENGTH_SHORT).show()
+                    // Redirigir al usuario a la actividad de inicio de sesión
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Error al enviar correo de verificación.", Toast.LENGTH_SHORT).show()
                 }
             }
     }

@@ -114,10 +114,17 @@ class MainActivity : AppCompatActivity() {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Inicio de sesión exitoso
-                    val intent = Intent(this, NavigationActivity::class.java)
-                    startActivity(intent)
-                    finish() // Finalizar la actividad actual si no se desea volver atrás
+                    val user = mAuth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        // Inicio de sesión exitoso y correo verificado
+                        val intent = Intent(this, NavigationActivity::class.java)
+                        startActivity(intent)
+                        finish() // Finalizar la actividad actual si no se desea volver atrás
+                    } else {
+                        // Correo no verificado
+                        mAuth.signOut()
+                        Toast.makeText(this, "Por favor, verifique su correo electrónico antes de iniciar sesión.", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     // Manejar errores
                     Log.w(TAG, "signInWithEmailAndPassword:failure", task.exception)
