@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Parking Madrid"
             app:menu="@menu/top_app_bar"
-            app:navigationIcon="@drawable/ic_menu_20dp"
+            app:navigationIcon="@drawable/menu1"
             style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
         <!-- Buscador -->

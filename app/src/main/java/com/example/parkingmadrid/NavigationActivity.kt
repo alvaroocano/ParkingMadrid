@@ -1,5 +1,6 @@
 package com.example.parkingmadrid
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -27,6 +28,7 @@ import com.google.android.material.card.MaterialCardView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.appcompat.app.AlertDialog
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -156,6 +158,36 @@ class NavigationActivity : AppCompatActivity() {
         }
 
         return cardView
+    }
+
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        showLogoutConfirmationDialog()
+    }
+
+    private fun showLogoutConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Cerrar sesión")
+            .setMessage("¿Está seguro de que desea cerrar sesión?")
+            .setPositiveButton("Sí") { dialog, which ->
+                logoutAndRedirectToLogin()
+            }
+            .setNegativeButton("No") { dialog, which ->
+                dialog.dismiss() // Dismiss the dialog and stay in the activity
+            }
+            .show()
+    }
+
+    private fun logoutAndRedirectToLogin() {
+        // Código para cerrar la sesión del usuario.
+        // Por ejemplo:
+        // val sharedPreferences = getSharedPreferences("myAppPrefs", Context.MODE_PRIVATE)
+        // sharedPreferences.edit().clear().apply()
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     // Método para cerrar sesión en Facebook
