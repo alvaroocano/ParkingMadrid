@@ -1,0 +1,48 @@
+<!-- res/layout/nav_header.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/nav_header_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre del Usuario"
+                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            <TextView
+                android:id="@+id/nav_header_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="usuario@correo.com"
+                android:textSize="14sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/theme_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_moon"
+            android:contentDescription="Toggle Night Mode"
+            app:tint="@android:color/darker_gray" />
+    </LinearLayout>
+</LinearLayout>

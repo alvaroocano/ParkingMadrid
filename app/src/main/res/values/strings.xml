@@ -9,6 +9,7 @@
     <string name="facebook_client_token">a8508a26d10d5123c6a274fc82dd0df8</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="facebook_redirect_url">https://example.com/facebook-auth-callback</string>
-
+    <string name="navigation_drawer_open">Abrir menú</string>
+    <string name="navigation_drawer_close">Cerrar menú</string>
 
 </resources>

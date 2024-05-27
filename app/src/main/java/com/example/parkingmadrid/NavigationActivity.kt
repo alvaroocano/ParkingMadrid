@@ -3,21 +3,30 @@ package com.example.parkingmadrid
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
@@ -25,26 +34,55 @@ import com.facebook.login.LoginManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import androidx.appcompat.app.AlertDialog
 
-class NavigationActivity : AppCompatActivity() {
+class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var madridAPI: MadridAPI
     private lateinit var editTextSearch: EditText
     private lateinit var spinnerSearchCriteria: Spinner
     private lateinit var cardContainer: LinearLayout
     private lateinit var progressBar: ProgressBar
-    private lateinit var dataList: List<ParkingInfo>
+    private var dataList: List<ParkingInfo> = emptyList()
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+//    private lateinit var favoriteButton: ImageButton
+    private var isFavorite = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
+
+
         val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
-        //setSupportActionBar(toolbar)
+        setSupportActionBar(toolbar)
+
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Configura los datos del usuario en el header del NavigationView
+        val headerView = navigationView.getHeaderView(0)
+        val navHeaderName = headerView.findViewById<TextView>(R.id.nav_header_name)
+        val navHeaderEmail = headerView.findViewById<TextView>(R.id.nav_header_email)
+        val themeToggle = headerView.findViewById<ImageView>(R.id.theme_toggle)
+
+        navHeaderName.text = "Nombre del Usuario" // Reemplaza con el nombre real del usuario
+        navHeaderEmail.text = "usuario@correo.com" // Reemplaza con el correo real del usuario
+
+        themeToggle.setOnClickListener {
+            toggleNightMode()
+        }
 
         editTextSearch = findViewById(R.id.editTextSearch)
         spinnerSearchCriteria = findViewById(R.id.spinnerSearchCriteria)
@@ -77,6 +115,24 @@ class NavigationActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun toggleNightMode() {
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (nightModeFlags) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            Configuration.UI_MODE_NIGHT_NO -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.top_app_bar, menu)
+        return true
+    }
+
 
     private fun toggleSearchVisibility() {
         val isVisible = editTextSearch.isVisible
@@ -130,6 +186,7 @@ class NavigationActivity : AppCompatActivity() {
         val secondaryTextView = cardView.findViewById<TextView>(R.id.seccondary)
         val supportingTextView = cardView.findViewById<TextView>(R.id.supporting)
         val buttonGoTo = cardView.findViewById<MaterialButton>(R.id.button_go_to)
+        val favoriteButton = cardView.findViewById<ImageButton>(R.id.button_favorite)
 
         // Llena los campos con los datos del ParkingInfo
         titleTextView.text = item.name ?: "Nombre no disponible"
@@ -156,13 +213,28 @@ class NavigationActivity : AppCompatActivity() {
                 startActivity(mapIntent)
             }
         }
+        favoriteButton.setImageResource(R.drawable.estrella)
+        favoriteButton.setOnClickListener {
+            isFavorite = !isFavorite
+            if (isFavorite) {
+                favoriteButton.setImageResource(R.drawable.estrella)
+                // Realiza la lógica para marcar como favorito
+            } else {
+                favoriteButton.setImageResource(R.drawable.estrella2)
+                // Realiza la lógica para desmarcar como favorito
+            }
+        }
 
         return cardView
     }
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        showLogoutConfirmationDialog()
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            showLogoutConfirmationDialog()
+        }
     }
 
     private fun showLogoutConfirmationDialog() {
@@ -173,7 +245,7 @@ class NavigationActivity : AppCompatActivity() {
                 logoutAndRedirectToLogin()
             }
             .setNegativeButton("No") { dialog, which ->
-                dialog.dismiss() // Dismiss the dialog and stay in the activity
+                dialog.dismiss()
             }
             .show()
     }
@@ -199,5 +271,20 @@ class NavigationActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_profile -> {
+                // Lógica para abrir el perfil del usuario
+                return true
+            }
+            R.id.nav_logout -> {
+                showLogoutConfirmationDialog()
+                return true
+            }
+        }
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
     }
 }
