@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-
-    tools:context=".Registro"
+    tools:context=".MainActivity"
     android:layout_centerHorizontal="true">
 
     <ImageView
@@ -15,7 +14,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
         android:src="@drawable/icono" />
-
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/usernameTextInputLayoutLogin"
@@ -35,33 +33,30 @@
             android:drawablePadding="8dp"
             android:hint="Usuario/Email"
             android:inputType="text" />
-
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/textInputLayoutPassword"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/usernameTextInputLayoutLogin"
-    android:layout_below="@id/usernameTextInputLayoutLogin"
-    android:layout_marginTop="16dp"
-    android:layout_marginBottom="16dp"
-    app:passwordToggleEnabled="true"
-    app:passwordToggleDrawable="@drawable/view">
-
-    <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/textInputLayoutPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/padlock2"
-        android:drawablePadding="8dp"
-        android:hint="Contraseña"
-        android:inputType="textPassword"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/usernameTextInputLayoutLogin"
+        android:layout_below="@id/usernameTextInputLayoutLogin"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleDrawable="@drawable/view">
 
-</com.google.android.material.textfield.TextInputLayout>
-
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/padlock2"
+            android:drawablePadding="8dp"
+            android:hint="Contraseña"
+            android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/buttonLogin"
@@ -98,10 +93,22 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"/>
 
+    <TextView
+        android:id="@+id/textViewForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¿Olvidaste tu contraseña?"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_below="@id/buttonRegister"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"/>
+
     <LinearLayout
         android:layout_width="198dp"
         android:layout_height="84dp"
-        android:layout_below="@id/buttonRegister"
+        android:layout_below="@id/textViewForgotPassword"
         android:layout_alignParentStart="true"
         android:layout_marginStart="95dp"
         android:layout_marginTop="21dp"
@@ -129,7 +136,4 @@
             android:padding="16dp"
             android:src="@drawable/facebook" />
     </LinearLayout>
-
 </RelativeLayout>
-
-

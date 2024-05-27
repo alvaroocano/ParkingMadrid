@@ -131,9 +131,6 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     private fun isValidDOB(dob: String): Boolean {
-        val calendar = Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-
         val parts = dob.split("/")
         if (parts.size != 3) return false
 
@@ -141,12 +138,22 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val month = parts[1].toIntOrNull() ?: return false
         val year = parts[2].toIntOrNull() ?: return false
 
-        val userAge = currentYear - year
-        val isFutureDate = Calendar.getInstance().apply {
-            set(year, month - 1, day)
-        }.after(Calendar.getInstance())
+        val dobCalendar = Calendar.getInstance()
+        dobCalendar.set(year, month - 1, day)
 
-        return !isFutureDate && userAge >= 18
+        val today = Calendar.getInstance()
+
+        // Verificar si la fecha de nacimiento está en el futuro
+        if (dobCalendar.after(today)) return false
+
+        var age = today.get(Calendar.YEAR) - dobCalendar.get(Calendar.YEAR)
+
+        // Ajustar si el cumpleaños no ha ocurrido este año
+        if (today.get(Calendar.DAY_OF_YEAR) < dobCalendar.get(Calendar.DAY_OF_YEAR)) {
+            age--
+        }
+
+        return age >= 18
     }
 
     private fun isValidPassword(password: String): Boolean {

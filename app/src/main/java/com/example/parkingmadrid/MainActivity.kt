@@ -3,14 +3,15 @@ package com.example.parkingmadrid
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.*
 import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -36,6 +37,13 @@ class MainActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
         FirebaseApp.initializeApp(this)
         database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
+
+        // Verificar si el usuario ya ha iniciado sesión
+        if (mAuth.currentUser != null) {
+            val intent = Intent(this, NavigationActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         editTextUsernameOrEmail = findViewById(R.id.editTextUsername)
         editTextPassword = findViewById(R.id.editTextPassword)
@@ -71,43 +79,57 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        val textViewForgotPassword: TextView = findViewById(R.id.textViewForgotPassword)
+        textViewForgotPassword.setOnClickListener {
+            val email = editTextUsernameOrEmail.text.toString().trim()
+            if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                resetPassword(email)
+            } else {
+                Toast.makeText(this, "Por favor, ingrese un correo electrónico válido.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun resetPassword(email: String) {
+        mAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Correo de restablecimiento de contraseña enviado.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Error al enviar el correo de restablecimiento de contraseña.", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     private fun signIn() {
-        val usernameOrEmail = editTextUsernameOrEmail.text.toString().trim()
+        val usernameOrEmail = editTextUsernameOrEmail.text.toString()
         val password = editTextPassword.text.toString()
 
-        if (usernameOrEmail.isEmpty() || password.isEmpty()) {
-            // Validación de campos
-            Toast.makeText(this, "Por favor, ingrese tanto el nombre de usuario/correo electrónico como la contraseña", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (usernameOrEmail.isNotEmpty() && password.isNotEmpty()) {
+            // Verificar si el usuario está registrado con correo electrónico y contraseña
+            val usersRef = database.reference.child("usuarios")
+            usersRef.orderByChild("nombreUsuario").equalTo(usernameOrEmail).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // El usuario se ha registrado con nombre de usuario
+                        for (userSnapshot in dataSnapshot.children) {
+                            val email = userSnapshot.child("email").value.toString()
+                            signInWithEmailAndPassword(email, password)
+                        }
+                    } else {
+                        // Intentar iniciar sesión con correo electrónico
+                        signInWithEmailAndPassword(usernameOrEmail, password)
+                    }
+                }
 
-        if (!isValidUsernameOrEmail(usernameOrEmail) || !isValidPassword(password)) {
-            // Validación de inyección de código
-            Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Check if the input is an email
-        if (android.util.Patterns.EMAIL_ADDRESS.matcher(usernameOrEmail).matches()) {
-            signInWithEmailAndPassword(usernameOrEmail, password)
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Toast.makeText(this@MainActivity, "Error al buscar usuario en la base de datos.", Toast.LENGTH_SHORT).show()
+                }
+            })
         } else {
-            // Assume input is a nickname and try to find corresponding email
-            findUserByNick(usernameOrEmail, password)
+            Toast.makeText(this, "Por favor, ingrese nombre de usuario/correo y contraseña.", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun isValidUsernameOrEmail(input: String): Boolean {
-        // Validar que la entrada no contenga caracteres especiales potencialmente peligrosos excepto @
-        val regex = "^[a-zA-Z0-9@.]+$"
-        return input.matches(regex.toRegex())
-    }
-
-    private fun isValidPassword(input: String): Boolean {
-        // Validar que la contraseña contenga cualquier carácter excepto espacios
-        val regex = "^[^\\s]+$"
-        return input.matches(regex.toRegex())
     }
 
     private fun signInWithEmailAndPassword(email: String, password: String) {
@@ -115,52 +137,13 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        // Inicio de sesión exitoso y correo verificado
-                        val intent = Intent(this, NavigationActivity::class.java)
-                        startActivity(intent)
-                        finish() // Finalizar la actividad actual si no se desea volver atrás
-                    } else {
-                        // Correo no verificado
-                        mAuth.signOut()
-                        Toast.makeText(this, "Por favor, verifique su correo electrónico antes de iniciar sesión.", Toast.LENGTH_SHORT).show()
-                    }
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
-                    // Manejar errores
-                    Log.w(TAG, "signInWithEmailAndPassword:failure", task.exception)
-                    Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(baseContext, "Error en la autenticación.", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "signInWithEmailAndPassword:error", exception)
-                Toast.makeText(this, "Error al iniciar sesión. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun findUserByNick(nickname: String, password: String) {
-        val usersRef = database.reference.child("users")
-        val query = usersRef.orderByChild("nickname").equalTo(nickname)
-
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (userSnapshot in dataSnapshot.children) {
-                        val email = userSnapshot.child("email").getValue(String::class.java)
-                        if (email != null) {
-                            signInWithEmailAndPassword(email, password)
-                            return
-                        }
-                    }
-                } else {
-                    Toast.makeText(this@MainActivity, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.e(TAG, "findUserByNick:onCancelled", databaseError.toException())
-                Toast.makeText(this@MainActivity, "Error en la base de datos. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     private fun signInWithGoogle() {
@@ -169,115 +152,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signInWithFacebook() {
-        // Verificar si ya existe una sesión activa de Facebook
-        val accessToken = AccessToken.getCurrentAccessToken()
-        if (accessToken != null && !accessToken.isExpired) {
-            // Si ya hay una sesión activa, iniciar sesión directamente con Firebase
-            firebaseAuthWithFacebook(accessToken)
-        } else {
-            // Si no hay una sesión activa, solicitar al usuario que inicie sesión
-            val permissions = listOf("email", "public_profile")
-            LoginManager.getInstance().logInWithReadPermissions(this, permissions)
-        }
+        LoginManager.getInstance().logInWithReadPermissions(this, listOf("email", "public_profile"))
+        LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(loginResult: LoginResult) {
+                handleFacebookAccessToken(loginResult.accessToken)
+            }
+
+            override fun onCancel() {
+                // El inicio de sesión con Facebook se canceló
+            }
+
+            override fun onError(error: FacebookException) {
+                Toast.makeText(this@MainActivity, "Error al iniciar sesión con Facebook.", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
-    private fun firebaseAuthWithFacebook(token: AccessToken) {
+    private fun handleFacebookAccessToken(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Inicio de sesión exitoso con Facebook
+                    val user = mAuth.currentUser
                     val intent = Intent(this, NavigationActivity::class.java)
                     startActivity(intent)
-                    finish() // Finalizar la actividad actual si no se desea volver atrás
+                    finish()
                 } else {
-                    // Manejar errores
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    Toast.makeText(this, "Error de autenticación con Facebook. Intente nuevamente.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error en la autenticación con Facebook.", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "firebaseAuthWithFacebook:error", exception)
-                Toast.makeText(this, "Error al iniciar sesión con Facebook. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun handleUserCollision(exception: FirebaseAuthUserCollisionException, credential: AuthCredential) {
-        val email = exception.email
-        if (email != null) {
-            FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val signInMethods = task.result?.signInMethods ?: emptyList()
-                        if (signInMethods.contains(credential.provider)) {
-                            // La dirección de correo electrónico ya está asociada con el proveedor actual,
-                            // no es necesario fusionar cuentas
-                            // Puedes informar al usuario o continuar con el inicio de sesión normal
-                            Toast.makeText(this, "Correo electrónico ya asociado con este proveedor.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            // La dirección de correo electrónico ya está asociada con otra cuenta,
-                            // se debe fusionar las cuentas
-                            mergeAccounts(credential)
-                        }
-                    } else {
-                        // Manejar error al obtener los proveedores de autenticación
-                        Log.e(TAG, "fetchSignInMethodsForEmail:failure", task.exception)
-                        Toast.makeText(this, "Error al verificar el método de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "fetchSignInMethodsForEmail:error", exception)
-                    Toast.makeText(this, "Error al verificar el método de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            // No se proporcionó una dirección de correo electrónico, manejar el error en consecuencia
-            Log.e(TAG, "FirebaseAuthUserCollisionException: email is null")
-            Toast.makeText(this, "Error de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun mergeAccounts(credential: AuthCredential) {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            // Fusionar cuentas: vincular las credenciales del proveedor actual a la cuenta existente del usuario
-            currentUser.linkWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Fusión de cuentas exitosa
-                        Toast.makeText(this, "Cuentas fusionadas exitosamente.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        // Manejar error en la fusión de cuentas
-                        Log.e(TAG, "mergeAccounts:failure", task.exception)
-                        Toast.makeText(this, "Error al fusionar cuentas. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "mergeAccounts:error", exception)
-                    Toast.makeText(this, "Error al fusionar cuentas. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            // No hay un usuario actualmente autenticado, manejar el error en consecuencia
-            Log.e(TAG, "mergeAccounts: no current user")
-            Toast.makeText(this, "Error de autenticación. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Pasar el resultado del inicio de sesión con Facebook al callbackManager
+        // Pasar el resultado al CallbackManager de Facebook
         callbackManager.onActivityResult(requestCode, resultCode, data)
 
+        // Resultado del inicio de sesión con Google
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
-                // Autenticar con Google
-                val account = task.getResult(ApiException::class.java)
+                val account = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
-                // Manejar errores
-                Log.w(TAG, "Google sign in failed", e)
-                Toast.makeText(this, "Error al iniciar sesión con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al iniciar sesión con Google.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -287,31 +206,17 @@ class MainActivity : AppCompatActivity() {
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Inicio de sesión exitoso
                     val user = mAuth.currentUser
-                    // Ir a la siguiente actividad
                     val intent = Intent(this, NavigationActivity::class.java)
                     startActivity(intent)
-                    finish() // Finalizar la actividad actual si no se desea volver atrás
+                    finish()
                 } else {
-                    // Manejar errores
-                    if (task.exception is FirebaseAuthUserCollisionException) {
-                        // Manejar la fusión de cuentas
-                        handleUserCollision(task.exception as FirebaseAuthUserCollisionException, credential)
-                    } else {
-                        Log.w(TAG, "signInWithCredential:failure", task.exception)
-                        Toast.makeText(this, "Error de autenticación con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
-                    }
+                    Toast.makeText(this, "Error en la autenticación con Google.", Toast.LENGTH_SHORT).show()
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "firebaseAuthWithGoogle:error", exception)
-                Toast.makeText(this, "Error al iniciar sesión con Google. Intente nuevamente.", Toast.LENGTH_SHORT).show()
             }
     }
 
     companion object {
         private const val RC_SIGN_IN = 9001
-        private const val TAG = "MainActivity"
     }
 }

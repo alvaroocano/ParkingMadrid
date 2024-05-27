@@ -14,14 +14,14 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -30,11 +30,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
-import com.facebook.login.LoginManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -49,14 +49,14 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private var dataList: List<ParkingInfo> = emptyList()
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-//    private lateinit var favoriteButton: ImageButton
     private var isFavorite = false
+    private lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-
+        mAuth = FirebaseAuth.getInstance()
 
         val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
         setSupportActionBar(toolbar)
@@ -71,14 +71,13 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Configura los datos del usuario en el header del NavigationView
         val headerView = navigationView.getHeaderView(0)
         val navHeaderName = headerView.findViewById<TextView>(R.id.nav_header_name)
         val navHeaderEmail = headerView.findViewById<TextView>(R.id.nav_header_email)
         val themeToggle = headerView.findViewById<ImageView>(R.id.theme_toggle)
 
-        navHeaderName.text = "Nombre del Usuario" // Reemplaza con el nombre real del usuario
-        navHeaderEmail.text = "usuario@correo.com" // Reemplaza con el correo real del usuario
+        navHeaderName.text = "Nombre del Usuario"
+        navHeaderEmail.text = "usuario@correo.com"
 
         themeToggle.setOnClickListener {
             toggleNightMode()
@@ -132,7 +131,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         menuInflater.inflate(R.menu.top_app_bar, menu)
         return true
     }
-
 
     private fun toggleSearchVisibility() {
         val isVisible = editTextSearch.isVisible
@@ -188,7 +186,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val buttonGoTo = cardView.findViewById<MaterialButton>(R.id.button_go_to)
         val favoriteButton = cardView.findViewById<ImageButton>(R.id.button_favorite)
 
-        // Llena los campos con los datos del ParkingInfo
         titleTextView.text = item.name ?: "Nombre no disponible"
         secondaryTextView.text = item.address ?: "Dirección no disponible"
         val occupationText = item.occupations?.firstOrNull()?.free?.let { freeSpaces ->
@@ -196,7 +193,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         } ?: "Ocupación no disponible"
         supportingTextView.text = occupationText
 
-        // Configura bordes y sombras
         cardView.apply {
             cardElevation = 8f
             radius = 16f
@@ -204,7 +200,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             strokeColor = ContextCompat.getColor(context, R.color.card_stroke_color)
         }
 
-        // Configura el botón "Ir a" para abrir Google Maps con las coordenadas
         buttonGoTo.setOnClickListener {
             val gmmIntentUri = Uri.parse("geo:${item.latitude},${item.longitude}?q=parking ${item.address}")
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
@@ -251,24 +246,9 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     }
 
     private fun logoutAndRedirectToLogin() {
-        // Código para cerrar la sesión del usuario.
-        // Por ejemplo:
-        // val sharedPreferences = getSharedPreferences("myAppPrefs", Context.MODE_PRIVATE)
-        // sharedPreferences.edit().clear().apply()
-
+        mAuth.signOut()
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
-
-    // Método para cerrar sesión en Facebook
-    private fun signOutFromFacebook() {
-        // Cerrar sesión con Facebook
-        LoginManager.getInstance().logOut()
-
-        // Redirigir a la pantalla de inicio de sesión o a donde corresponda en tu aplicación
-        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -276,7 +256,10 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_profile -> {
-                // Lógica para abrir el perfil del usuario
+                val intent = Intent(this, ProfileActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
                 return true
             }
             R.id.nav_logout -> {
