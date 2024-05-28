@@ -3,38 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center">
 
-    <!-- Campo para mostrar el nombre del usuario -->
+    <ImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/defaultuser"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:onClick="changeProfileImage"
+        android:layout_marginBottom="24dp" />
+
     <EditText
         android:id="@+id/editTextName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre" />
+        android:hint="Nombre"
+        android:layout_gravity="center" />
 
-    <!-- Campo para mostrar el correo electrónico del usuario -->
     <EditText
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Correo electrónico"
         android:inputType="textEmailAddress"
-        android:enabled="false" />
+        android:enabled="false"
+        android:layout_gravity="center" />
 
-    <!-- Campo para cambiar la foto de perfil del usuario -->
-    <ImageView
-        android:id="@+id/imageViewProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/user2"
-        android:onClick="changeProfileImage" />
-
-    <!-- Botón para guardar los cambios -->
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Guardar cambios"
-        android:onClick="saveChanges" />
+        android:onClick="saveChanges"
+        android:layout_gravity="center" />
 
 </LinearLayout>

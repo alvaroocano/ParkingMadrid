@@ -39,7 +39,8 @@ class MainActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
 
         // Verificar si el usuario ya ha iniciado sesión
-        if (mAuth.currentUser != null) {
+        val currentUser = mAuth.currentUser
+        if (currentUser != null && currentUser.isEmailVerified) {
             val intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
             finish()
@@ -137,9 +138,14 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-                    val intent = Intent(this, NavigationActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    if (user?.isEmailVerified == true) {
+                        val intent = Intent(this, NavigationActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Por favor, verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                        mAuth.signOut()
+                    }
                 } else {
                     Toast.makeText(baseContext, "Error en la autenticación.", Toast.LENGTH_SHORT).show()
                 }
@@ -174,9 +180,14 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-                    val intent = Intent(this, NavigationActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    if (user?.isEmailVerified == true) {
+                        val intent = Intent(this, NavigationActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Por favor, verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                        mAuth.signOut()
+                    }
                 } else {
                     Toast.makeText(this, "Error en la autenticación con Facebook.", Toast.LENGTH_SHORT).show()
                 }
@@ -207,9 +218,14 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = mAuth.currentUser
-                    val intent = Intent(this, NavigationActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    if (user?.isEmailVerified == true) {
+                        val intent = Intent(this, NavigationActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Por favor, verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
+                        mAuth.signOut()
+                    }
                 } else {
                     Toast.makeText(this, "Error en la autenticación con Google.", Toast.LENGTH_SHORT).show()
                 }

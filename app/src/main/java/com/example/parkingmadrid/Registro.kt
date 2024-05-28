@@ -11,12 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import java.util.Calendar
 import java.util.regex.Pattern
 
 class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
+    private lateinit var storage: FirebaseStorage
 
     private lateinit var editTextFirstName: EditText
     private lateinit var editTextEmail: EditText
@@ -30,6 +32,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
+        storage = FirebaseStorage.getInstance()
 
         // Inicializar EditTexts
         editTextFirstName = findViewById(R.id.editTextFirstName)
@@ -89,7 +92,11 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                     user?.let {
                         val userId = it.uid
                         val usersRef = database.reference.child("users").child(userId)
-                        val userData = User(dob, firstName, username, email)
+
+                        // URL de la imagen predeterminada
+                        val defaultProfileImageUrl = "gs://parking-madrid-fc293.appspot.com/user.png"
+
+                        val userData = User(dob, firstName, username, email, defaultProfileImageUrl)
 
                         usersRef.setValue(userData).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -111,6 +118,8 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             ?.addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Correo de verificación enviado a ${user.email}", Toast.LENGTH_SHORT).show()
+                    // Cerrar sesión del usuario
+                    mAuth.signOut()
                     // Redirigir al usuario a la actividad de inicio de sesión
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -143,12 +152,10 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
         val today = Calendar.getInstance()
 
-        // Verificar si la fecha de nacimiento está en el futuro
         if (dobCalendar.after(today)) return false
 
         var age = today.get(Calendar.YEAR) - dobCalendar.get(Calendar.YEAR)
 
-        // Ajustar si el cumpleaños no ha ocurrido este año
         if (today.get(Calendar.DAY_OF_YEAR) < dobCalendar.get(Calendar.DAY_OF_YEAR)) {
             age--
         }
@@ -169,7 +176,6 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
 
-        // Calcular la fecha de hoy, pero hace 18 años
         calendar.add(Calendar.YEAR, -18)
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
