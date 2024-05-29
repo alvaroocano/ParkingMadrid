@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +39,11 @@ import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -51,6 +57,9 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var navigationView: NavigationView
     private var isFavorite = false
     private lateinit var mAuth: FirebaseAuth
+
+    private val PREFS_NAME = "MyPrefsFile"
+    private val API_LOADED_KEY = "api_loaded"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +99,20 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
-        fetchData()
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val apiLoaded = prefs.getBoolean(API_LOADED_KEY, false)
+
+        if (!apiLoaded) {
+            fetchData()
+            val editor = prefs.edit()
+            editor.putBoolean(API_LOADED_KEY, true)
+            editor.apply()
+        } else {
+            dataList = loadDataFromCache()
+            if (dataList.isNotEmpty()) {
+                handleResponse(dataList)
+            }
+        }
 
         editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -147,8 +169,11 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 if (response.isSuccessful) {
                     dataList = response.body() ?: emptyList()
                     handleResponse(dataList)
+
+
+                    saveDataToCache(dataList)
                 } else {
-                    // Maneja la respuesta no exitosa aquí
+
                 }
             }
 
@@ -157,6 +182,46 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 // Maneja el fallo de la solicitud aquí
             }
         })
+    }
+
+    private fun saveDataToCache(dataList: List<ParkingInfo>) {
+        try {
+            val cacheFile = File(cacheDir, "parking_data")
+            val fos = FileOutputStream(cacheFile)
+            val oos = ObjectOutputStream(fos)
+            oos.writeObject(dataList)
+            oos.close()
+            fos.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun loadDataFromCache(): List<ParkingInfo> {
+        val cacheFile = File(cacheDir, "parking_data")
+        if (!cacheFile.exists()) {
+            Toast.makeText(this, "Archivo de caché no encontrado", Toast.LENGTH_SHORT).show()
+            return emptyList()
+        }
+
+        return try {
+            val fis = FileInputStream(cacheFile)
+            val ois = ObjectInputStream(fis)
+            val dataList = ois.readObject() as? List<ParkingInfo>
+            ois.close()
+            fis.close()
+
+            if (dataList == null) {
+                Toast.makeText(this, "Error al leer la caché: dataList es nulo", Toast.LENGTH_SHORT).show()
+                emptyList()
+            } else {
+                dataList
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al leer la caché: ${e.message}", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     private fun performSearch(criteria: String, searchText: String) {
@@ -270,4 +335,5 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
 }

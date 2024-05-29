@@ -1,5 +1,7 @@
 package com.example.parkingmadrid.Clases
 
+import java.io.Serializable
+
 data class ParkingInfo(
     val address: String,
     val administrativeArea: String,
@@ -17,7 +19,7 @@ data class ParkingInfo(
     val town: String,
     val type: String,
     val occupations: List<Occupation>
-)
+) : Serializable
 
 data class Occupation(
     val code: String,
@@ -25,4 +27,4 @@ data class Occupation(
     val moment: String,
     val name: String,
     val renewalIndex: String
-)
+) : Serializable
