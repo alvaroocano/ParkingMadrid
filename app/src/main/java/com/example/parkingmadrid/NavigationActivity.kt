@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
 import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
@@ -35,6 +36,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -72,12 +74,28 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         toggle.syncState()
 
         val headerView = navigationView.getHeaderView(0)
+        val navHeaderImage = headerView.findViewById<ImageView>(R.id.nav_header_image)
         val navHeaderName = headerView.findViewById<TextView>(R.id.nav_header_name)
         val navHeaderEmail = headerView.findViewById<TextView>(R.id.nav_header_email)
         val themeToggle = headerView.findViewById<ImageView>(R.id.theme_toggle)
 
-        navHeaderName.text = "Nombre del Usuario"
-        navHeaderEmail.text = "usuario@correo.com"
+        // Obtener usuario actual
+        val currentUser: FirebaseUser? = mAuth.currentUser
+        currentUser?.let {
+            val name = it.displayName ?: "Nombre no disponible"
+            val email = it.email ?: "Correo no disponible"
+
+            navHeaderName.text = name
+            navHeaderEmail.text = email
+
+            it.photoUrl?.let { uri ->
+                Glide.with(this)
+                    .load(uri)
+                    .circleCrop()
+                    .placeholder(R.drawable.defaultuser) // Un drawable de recurso placeholder
+                    .into(navHeaderImage)
+            } ?: navHeaderImage.setImageResource(R.drawable.defaultuser)
+        }
 
         themeToggle.setOnClickListener {
             toggleNightMode()

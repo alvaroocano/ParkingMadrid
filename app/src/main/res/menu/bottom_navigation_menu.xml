@@ -8,6 +8,6 @@
     <item
         android:id="@+id/page_2"
         android:enabled="true"
-        android:icon="@drawable/user2"
-        android:title="Perfil"/>
+        android:icon="@drawable/estrella2"
+        android:title="Favoritos"/>
 </menu>

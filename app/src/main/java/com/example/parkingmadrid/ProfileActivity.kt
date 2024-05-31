@@ -53,8 +53,15 @@ class ProfileActivity : AppCompatActivity() {
                 val user = it.getValue(User::class.java)
                 user?.let {
                     editTextName.setText(it.fullName)
-                    Glide.with(this).load(it.profileImage).into(imageViewProfile)
+                    // Cargar imagen con Glide
+                    if (!it.profileImage.isNullOrEmpty()) {
+                        Glide.with(this).load(it.profileImage).into(imageViewProfile)
+                    } else {
+                        imageViewProfile.setImageResource(R.drawable.defaultuser)
+                    }
                 }
+            }.addOnFailureListener {
+                showToast("Error al obtener los datos del usuario.")
             }
         }
 
@@ -82,6 +89,10 @@ class ProfileActivity : AppCompatActivity() {
                 if (profileTask.isSuccessful) {
                     database.child(currentUser.uid).child("fullName").setValue(newName)
                     showToast("Cambios guardados exitosamente.")
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    finish()
                 } else {
                     showToast("Error al actualizar el nombre. Por favor, inténtalo de nuevo.")
                 }
@@ -132,7 +143,16 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, NavigationActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
     }
 }
