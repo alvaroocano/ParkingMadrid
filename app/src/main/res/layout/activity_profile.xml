@@ -11,7 +11,6 @@
         android:id="@+id/imageViewProfile"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/defaultuser"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
         android:onClick="changeProfileImage"

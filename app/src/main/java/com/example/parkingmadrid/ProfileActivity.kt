@@ -9,7 +9,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
 import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -17,6 +16,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.squareup.picasso.Picasso
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -29,6 +29,7 @@ class ProfileActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_IMAGE_PICK = 100
+        private const val DEFAULT_IMAGE_PATH = "user.png"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,12 +54,8 @@ class ProfileActivity : AppCompatActivity() {
                 val user = it.getValue(User::class.java)
                 user?.let {
                     editTextName.setText(it.fullName)
-                    // Cargar imagen con Glide
-                    if (!it.profileImage.isNullOrEmpty()) {
-                        Glide.with(this).load(it.profileImage).into(imageViewProfile)
-                    } else {
-                        imageViewProfile.setImageResource(R.drawable.defaultuser)
-                    }
+                    // Cargar imagen usando Picasso
+                    loadImageFromDatabase(it.profileImage)
                 }
             }.addOnFailureListener {
                 showToast("Error al obtener los datos del usuario.")
@@ -73,6 +70,22 @@ class ProfileActivity : AppCompatActivity() {
         // Asignar listener al imageViewProfile para cambiar la imagen del perfil
         imageViewProfile.setOnClickListener {
             openGallery()
+        }
+    }
+
+    private fun loadImageFromDatabase(imageUrl: String?) {
+        if (!imageUrl.isNullOrEmpty()) {
+            Picasso.get().load(imageUrl).into(imageViewProfile)
+        } else {
+            loadDefaultProfileImage()
+        }
+    }
+
+    private fun loadDefaultProfileImage() {
+        storageReference.child(DEFAULT_IMAGE_PATH).downloadUrl.addOnSuccessListener { uri ->
+            Picasso.get().load(uri).into(imageViewProfile)
+        }.addOnFailureListener {
+            showToast("Error al cargar la imagen por defecto.")
         }
     }
 
@@ -130,7 +143,7 @@ class ProfileActivity : AppCompatActivity() {
                     currentUser.updateProfile(profileUpdates).addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             database.child(currentUser.uid).child("profileImage").setValue(downloadUri.toString())
-                            Glide.with(this).load(downloadUri).into(imageViewProfile)
+                            Picasso.get().load(downloadUri).into(imageViewProfile)
                             showToast("Imagen de perfil actualizada.")
                         } else {
                             showToast("Error al actualizar la imagen de perfil.")
@@ -142,7 +155,6 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
