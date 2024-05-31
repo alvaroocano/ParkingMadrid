@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorSecondary">#03DAC5</color>
-    <color name="colorSecondaryDark">#018786</color>
-    <color name="colorOnSecondary">#000000</color>
-    <color name="card_stroke_color">#FF0000</color>
-    <!-- Colores para el modo oscuro -->
-    <color name="dark_colorPrimary">#3700B3</color>
-    <color name="dark_colorPrimaryDark">#6200EE</color>
-    <color name="dark_colorOnPrimary">#000000</color>
-    <color name="dark_colorSecondary">#018786</color>
-    <color name="dark_colorSecondaryDark">#03DAC5</color>
-    <color name="dark_colorOnSecondary">#FFFFFF</color>
+    <color name="background_color">#FFFFFF</color>
+    <color name="background_color_navigation">#3F51B5</color>
+    <color name="icon_tint_color">#FF0000</color>
+    <color name="text_color">#000000</color>
+    <color name="card_stroke_color">#1A237E</color>
+    <color name="tittle_color">#1A237E</color>
+    <color name="secondary_text_color">#757575</color>
+    <color name="supporting_text_color">#9E9E9E</color>
+    <color name="button_text_color">#3F51B5</color>
+    <color name="favorite_icon_color">#FFC107</color>
+    <color name="activity_background">#F5F5F5</color>
+    <color name="logo_tint">#FFEB3B</color>
+    <color name="input_box_stroke">#00BCD4</color>
+    <color name="input_text">#212121</color>
+    <color name="input_hint">#BDBDBD</color>
+    <color name="or_text_color">#000000</color>
+    <color name="google_button_tint">#DB4437</color>
+    <color name="facebook_button_tint">#4267B2</color>
+    <color name="nav_header_background">#E0E0E0</color>
+    <color name="nav_header_name_color">#212121</color>
+    <color name="nav_header_email_color">#757575</color>
+<!--    <color name="card_stroke_color">#FF0000</color>-->
 </resources>

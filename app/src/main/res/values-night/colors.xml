@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">#121212</color>
+    <color name="background_color_navigation">#555454</color>
+    <color name="icon_tint_color">#FF6F00</color>
+    <color name="text_color">#FFFFFF</color>
+    <color name="card_stroke_color">#FFFFFF</color>
+    <color name="tittle_color">#FFFFFF</color>
+    <color name="secondary_text_color">#BDBDBD</color>
+    <color name="supporting_text_color">#E0E0E0</color>
+    <color name="button_text_color">#BB86FC</color>
+    <color name="favorite_icon_color">#FFEB3B</color>
+    <color name="activity_background">#303030</color>
+    <color name="logo_tint">#FFC107</color>
+    <color name="input_box_stroke">#03DAC6</color>
+    <color name="input_text">#E0E0E0</color>
+    <color name="input_hint">#757575</color>
+    <color name="or_text_color">#FFFFFF</color>
+    <color name="google_button_tint">#EA4335</color>
+    <color name="facebook_button_tint">#1877F2</color>
+    <color name="nav_header_background">#424242</color>
+    <color name="nav_header_name_color">#FFFFFF</color>
+    <color name="nav_header_email_color">#BDBDBD</color>
+<!--    <color name="card_stroke_color">#FF0000</color>-->
+</resources>

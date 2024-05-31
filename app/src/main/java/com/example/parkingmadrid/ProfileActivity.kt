@@ -29,7 +29,6 @@ class ProfileActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_IMAGE_PICK = 100
-        private const val DEFAULT_IMAGE_URL = "gs://parking-madrid-fc293.appspot.com/user.png"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +53,15 @@ class ProfileActivity : AppCompatActivity() {
                 val user = it.getValue(User::class.java)
                 user?.let {
                     editTextName.setText(it.fullName)
-                    val profileImageUrl = it.profileImage ?: DEFAULT_IMAGE_URL
-                    loadImage(profileImageUrl)
-                } ?: run {
-                    loadImage(DEFAULT_IMAGE_URL)
+                    // Cargar imagen con Glide
+                    if (!it.profileImage.isNullOrEmpty()) {
+                        Glide.with(this).load(it.profileImage).into(imageViewProfile)
+                    } else {
+                        imageViewProfile.setImageResource(R.drawable.defaultuser)
+                    }
                 }
             }.addOnFailureListener {
-                loadImage(DEFAULT_IMAGE_URL)
+                showToast("Error al obtener los datos del usuario.")
             }
         }
 
@@ -72,32 +73,6 @@ class ProfileActivity : AppCompatActivity() {
         // Asignar listener al imageViewProfile para cambiar la imagen del perfil
         imageViewProfile.setOnClickListener {
             openGallery()
-        }
-    }
-
-    private fun loadImage(imageUrl: String) {
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val profileImageRef = storageReference.child("profileImages/${currentUser.uid}.jpg")
-            profileImageRef.downloadUrl.addOnSuccessListener { uri ->
-                // Imagen personalizada encontrada
-                Glide.with(this).load(uri).into(imageViewProfile)
-            }.addOnFailureListener {
-                // Imagen personalizada no encontrada, usar imagen por defecto
-                val defaultImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(DEFAULT_IMAGE_URL)
-                defaultImageRef.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(this).load(uri).into(imageViewProfile)
-                }.addOnFailureListener {
-                    showToast("Error al cargar la imagen de perfil.")
-                }
-            }
-        } else {
-            val defaultImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(DEFAULT_IMAGE_URL)
-            defaultImageRef.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(this).load(uri).into(imageViewProfile)
-            }.addOnFailureListener {
-                showToast("Error al cargar la imagen de perfil.")
-            }
         }
     }
 
@@ -114,6 +89,10 @@ class ProfileActivity : AppCompatActivity() {
                 if (profileTask.isSuccessful) {
                     database.child(currentUser.uid).child("fullName").setValue(newName)
                     showToast("Cambios guardados exitosamente.")
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    finish()
                 } else {
                     showToast("Error al actualizar el nombre. Por favor, inténtalo de nuevo.")
                 }
@@ -151,7 +130,7 @@ class ProfileActivity : AppCompatActivity() {
                     currentUser.updateProfile(profileUpdates).addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             database.child(currentUser.uid).child("profileImage").setValue(downloadUri.toString())
-                            loadImage(downloadUri.toString()) // Cargar la nueva imagen en el ImageView
+                            Glide.with(this).load(downloadUri).into(imageViewProfile)
                             showToast("Imagen de perfil actualizada.")
                         } else {
                             showToast("Error al actualizar la imagen de perfil.")
@@ -164,14 +143,16 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        startActivity(Intent(this, NavigationActivity::class.java))
-    }
-
-
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, NavigationActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
     }
 }

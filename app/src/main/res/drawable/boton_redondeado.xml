@@ -2,5 +2,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="20dp" /> <!-- Ajusta el radio según lo redondeado que desees el botón -->
-    <solid android:color="@color/colorPrimary" /> <!-- Cambia el color según tus preferencias -->
+    <solid android:color="?attr/colorPrimary" /> <!-- Cambia el color según tus preferencias -->
 </shape>

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_color"
     tools:context=".NavigationActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -24,14 +24,16 @@
                 app:title="Parking Madrid"
                 app:menu="@menu/top_app_bar"
                 app:navigationIcon="@drawable/menu1"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+                style="@style/Widget.MaterialComponents.Toolbar.Primary"
+                android:background="@color/background_color_navigation"
+                android:textColor="@color/text_color" />
 
             <!-- Buscador -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="0dp">
+                android:background="@color/background_color_navigation">
 
                 <EditText
                     android:id="@+id/editTextSearch"
@@ -40,7 +42,9 @@
                     android:hint="Buscar..."
                     android:padding="8dp"
                     android:background="?android:attr/editTextBackground"
+                    android:textColor="@color/text_color"
                     android:layout_marginBottom="8dp"
+                    app:hintTextColor="@color/input_hint"
                     android:visibility="gone" />
 
                 <Spinner
@@ -59,20 +63,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:padding="16dp"
-            android:layout_marginTop="16dp">
+            android:padding="10dp"
+            android:paddingBottom="80dp"
+            android:background="@color/background_color">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@color/background_color"
+                android:paddingBottom="80dp">
 
                 <LinearLayout
                     android:id="@+id/cardContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginTop="16dp">
+                    android:padding="8dp"
+                    android:layout_marginTop="16dp"
+                    android:divider="?android:attr/dividerVertical"
+                    android:showDividers="middle">
                 </LinearLayout>
 
             </LinearLayout>
@@ -83,7 +93,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:menu="@menu/bottom_navigation_menu"
+            android:background="@color/background_color"
+            app:itemIconTint="@color/text_color"
+            app:itemTextColor="@color/text_color" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -99,6 +112,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_menu"/>
-
+        app:menu="@menu/drawer_menu"
+        android:background="@color/background_color"
+        app:itemTextColor="@color/text_color"
+        app:itemIconTint="@color/text_color"/>
 </androidx.drawerlayout.widget.DrawerLayout>
