@@ -3,6 +3,7 @@ package com.example.parkingmadrid
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
@@ -33,11 +34,14 @@ import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,6 +63,8 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var navigationView: NavigationView
     private var isFavorite = false
     private lateinit var mAuth: FirebaseAuth
+    private lateinit var sharedPref: SharedPreferences
+    private var favoriteParkings: MutableList<ParkingInfo> = mutableListOf()
 
     private val PREFS_NAME = "MyPrefsFile"
     private val API_LOADED_KEY = "api_loaded"
@@ -117,12 +123,14 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val apiLoaded = prefs.getBoolean(API_LOADED_KEY, false)
+        sharedPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        favoriteParkings = loadFavoritesFromPreferences()
+
+        val apiLoaded = sharedPref.getBoolean(API_LOADED_KEY, false)
 
         if (!apiLoaded) {
             fetchData()
-            val editor = prefs.edit()
+            val editor = sharedPref.edit()
             editor.putBoolean(API_LOADED_KEY, true)
             editor.apply()
         } else {
@@ -148,6 +156,23 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             when (item.itemId) {
                 R.id.search -> {
                     toggleSearchVisibility()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_favorites -> {
+                    val intent = Intent(this, FavoritesActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 else -> false
@@ -187,17 +212,15 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 if (response.isSuccessful) {
                     dataList = response.body() ?: emptyList()
                     handleResponse(dataList)
-
-
                     saveDataToCache(dataList)
                 } else {
-
+                    Toast.makeText(this@NavigationActivity, "Error al obtener los datos", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<List<ParkingInfo>>, t: Throwable) {
                 progressBar.visibility = View.GONE
-                // Maneja el fallo de la solicitud aquí
+                Toast.makeText(this@NavigationActivity, "Error en la solicitud: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -291,19 +314,52 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 startActivity(mapIntent)
             }
         }
-        favoriteButton.setImageResource(R.drawable.estrella)
+
+        if (favoriteParkings.contains(item)) {
+            favoriteButton.setImageResource(R.drawable.estrella)
+            isFavorite = false
+        } else {
+            favoriteButton.setImageResource(R.drawable.estrella2)
+            isFavorite = true
+        }
+
         favoriteButton.setOnClickListener {
             isFavorite = !isFavorite
             if (isFavorite) {
                 favoriteButton.setImageResource(R.drawable.estrella)
-                // Realiza la lógica para marcar como favorito
+                addFavorite(item)
             } else {
                 favoriteButton.setImageResource(R.drawable.estrella2)
-                // Realiza la lógica para desmarcar como favorito
+                removeFavorite(item)
             }
         }
 
         return cardView
+    }
+    private fun addFavorite(item: ParkingInfo) {
+        favoriteParkings.add(item)
+        saveFavoritesToPreferences()
+    }
+
+    private fun removeFavorite(item: ParkingInfo) {
+        favoriteParkings.remove(item)
+        saveFavoritesToPreferences()
+    }
+
+    private fun saveFavoritesToPreferences() {
+        val editor = sharedPref.edit()
+        val gson = Gson()
+        val json = gson.toJson(favoriteParkings)
+        editor.putString("favorite_parkings", json)
+        editor.apply()
+    }
+
+
+    private fun loadFavoritesFromPreferences(): MutableList<ParkingInfo> {
+        val gson = Gson()
+        val json = sharedPref.getString("favorite_parkings", null)
+        val type = object : TypeToken<MutableList<ParkingInfo>>() {}.type
+        return gson.fromJson(json, type) ?: mutableListOf()
     }
 
     @SuppressLint("MissingSuperCall")
@@ -353,5 +409,4 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
-
 }

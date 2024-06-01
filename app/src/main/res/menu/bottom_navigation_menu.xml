@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/page_1"
-        android:enabled="true"
+        android:id="@+id/nav_home"
         android:icon="@drawable/name"
-        android:title="Inicio"/>
+        android:title="Home" />
     <item
-        android:id="@+id/page_2"
-        android:enabled="true"
+        android:id="@+id/nav_favorites"
         android:icon="@drawable/estrella2"
-        android:title="Favoritos"/>
+        android:title="Favorites" />
 </menu>
