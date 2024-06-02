@@ -315,12 +315,13 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
 
+        // Inicializar el estado del botón favorito
         if (favoriteParkings.contains(item)) {
             favoriteButton.setImageResource(R.drawable.estrella)
-            isFavorite = false
+            isFavorite = true
         } else {
             favoriteButton.setImageResource(R.drawable.estrella2)
-            isFavorite = true
+            isFavorite = false
         }
 
         favoriteButton.setOnClickListener {
@@ -336,14 +337,19 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         return cardView
     }
+
     private fun addFavorite(item: ParkingInfo) {
-        favoriteParkings.add(item)
-        saveFavoritesToPreferences()
+        if (!favoriteParkings.contains(item)) {
+            favoriteParkings.add(item)
+            saveFavoritesToPreferences()
+        }
     }
 
     private fun removeFavorite(item: ParkingInfo) {
-        favoriteParkings.remove(item)
-        saveFavoritesToPreferences()
+        if (favoriteParkings.contains(item)) {
+            favoriteParkings.remove(item)
+            saveFavoritesToPreferences()
+        }
     }
 
     private fun saveFavoritesToPreferences() {
@@ -354,13 +360,13 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         editor.apply()
     }
 
-
     private fun loadFavoritesFromPreferences(): MutableList<ParkingInfo> {
         val gson = Gson()
         val json = sharedPref.getString("favorite_parkings", null)
         val type = object : TypeToken<MutableList<ParkingInfo>>() {}.type
         return gson.fromJson(json, type) ?: mutableListOf()
     }
+
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
