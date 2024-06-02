@@ -315,22 +315,21 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
 
-        // Inicializar el estado del botón favorito
         if (favoriteParkings.contains(item)) {
-            favoriteButton.setImageResource(R.drawable.estrella)
+            favoriteButton.setImageResource(R.drawable.estrella2)
             isFavorite = true
         } else {
-            favoriteButton.setImageResource(R.drawable.estrella2)
+            favoriteButton.setImageResource(R.drawable.estrella)
             isFavorite = false
         }
 
         favoriteButton.setOnClickListener {
             isFavorite = !isFavorite
             if (isFavorite) {
-                favoriteButton.setImageResource(R.drawable.estrella)
+                favoriteButton.setImageResource(R.drawable.estrella2)
                 addFavorite(item)
             } else {
-                favoriteButton.setImageResource(R.drawable.estrella2)
+                favoriteButton.setImageResource(R.drawable.estrella)
                 removeFavorite(item)
             }
         }
