@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,7 @@ class FavoritesActivity : AppCompatActivity() {
         val secondaryTextView = cardView.findViewById<TextView>(R.id.seccondary)
         val supportingTextView = cardView.findViewById<TextView>(R.id.supporting)
         val buttonGoTo = cardView.findViewById<MaterialButton>(R.id.button_go_to)
+        val favoriteButton = cardView.findViewById<ImageButton>(R.id.button_favorite)
 
         titleTextView.text = item.name ?: "Nombre no disponible"
         secondaryTextView.text = item.address ?: "Dirección no disponible"
@@ -95,6 +97,47 @@ class FavoritesActivity : AppCompatActivity() {
             }
         }
 
+        if (isFavorite(item)) {
+            favoriteButton.setImageResource(R.drawable.estrella2)
+        } else {
+            favoriteButton.setImageResource(R.drawable.estrella)
+        }
+
+        favoriteButton.setOnClickListener {
+            if (isFavorite(item)) {
+                removeFavorite(item)
+                favoriteButton.setImageResource(R.drawable.estrella)
+            } else {
+                addFavorite(item)
+                favoriteButton.setImageResource(R.drawable.estrella2)
+            }
+        }
+
         return cardView
+    }
+
+    private fun isFavorite(item: ParkingInfo): Boolean {
+        val favorites = loadFavoritesFromPreferences()
+        return favorites.contains(item)
+    }
+
+    private fun addFavorite(item: ParkingInfo) {
+        val favorites = loadFavoritesFromPreferences().toMutableList()
+        favorites.add(item)
+        saveFavoritesToPreferences(favorites)
+    }
+
+    private fun removeFavorite(item: ParkingInfo) {
+        val favorites = loadFavoritesFromPreferences().toMutableList()
+        favorites.remove(item)
+        saveFavoritesToPreferences(favorites)
+    }
+
+    private fun saveFavoritesToPreferences(favorites: List<ParkingInfo>) {
+        val sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        val jsonString = Gson().toJson(favorites)
+        editor.putString("favorite_parkings_$userId", jsonString)
+        editor.apply()
     }
 }
