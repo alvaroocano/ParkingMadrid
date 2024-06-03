@@ -1,11 +1,17 @@
 package com.example.parkingmadrid
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -25,6 +31,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
@@ -64,6 +73,13 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var mAuth: FirebaseAuth
     private lateinit var sharedPref: SharedPreferences
     private var favoriteParkings: MutableList<ParkingInfo> = mutableListOf()
+    private val CHANNEL_ID = "favoritos_channel"
+    private val notificationId = 1234  // Puedes elegir cualquier número de identificación único
+    private val CHANNEL_NAME = "Favoritos"
+    private val CHANNEL_DESCRIPTION = "Notificaciones de guardado en favoritos"
+    private val PERMISSION_REQUEST_CODE = 1001
+
+
 
     private val PREFS_NAME = "favorite_parkings_"
     private val API_LOADED_KEY = "api_loaded"
@@ -186,6 +202,20 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 //                else -> false
 //            }
 //        }
+
+
+        // Crear el canal de notificación
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = CHANNEL_DESCRIPTION
+            }
+            // Registrar el canal con el sistema
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
+
     }
 
     private fun toggleNightMode() {
@@ -349,6 +379,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         if (!favoriteParkings.contains(item)) {
             favoriteParkings.add(item)
             saveFavoritesToPreferences()
+            showNotification(this,"Se ha guardado en favoritos el parking ${item.name}")
         }
     }
 
@@ -358,6 +389,35 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             saveFavoritesToPreferences()
         }
     }
+
+    private fun showNotification(context: Context, message: String) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Crear una notificación
+            val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.icono2)
+                .setContentTitle("Favoritos")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+            // Mostrar la notificación
+            with(NotificationManagerCompat.from(context)) {
+                notify(notificationId, notificationBuilder.build())
+            }
+        } else {
+            // Si no tienes el permiso, solicítalo al usuario
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+
 
     private fun saveFavoritesToPreferences() {
         val editor = sharedPref.edit()
@@ -421,4 +481,5 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
 }

@@ -1,6 +1,9 @@
 package com.example.parkingmadrid
 
+import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,7 +19,11 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.squareup.picasso.Picasso
+import java.io.File
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.Executors
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -45,17 +52,17 @@ class ProfileActivity : AppCompatActivity() {
         editTextEmail = findViewById(R.id.editTextEmail)
         imageViewProfile = findViewById(R.id.imageViewProfile)
         val buttonSave = findViewById<Button>(R.id.buttonSave)
-
+        descargarImagenFirebase(imageViewProfile)
         // Obtener datos del usuario y mostrarlos en las vistas
         val currentUser = auth.currentUser
         if (currentUser != null) {
             editTextEmail.setText(currentUser.email)
-            database.child(currentUser.uid).get().addOnSuccessListener {
+            database.child(currentUser.uid).get().addOnSuccessListener { it ->
                 val user = it.getValue(User::class.java)
                 user?.let {
                     editTextName.setText(it.fullName)
-                    // Cargar imagen usando Picasso
-                    loadImageFromDatabase(it.profileImage)
+                    // Cargar imagen del perfil
+
                 }
             }.addOnFailureListener {
                 showToast("Error al obtener los datos del usuario.")
@@ -70,22 +77,6 @@ class ProfileActivity : AppCompatActivity() {
         // Asignar listener al imageViewProfile para cambiar la imagen del perfil
         imageViewProfile.setOnClickListener {
             openGallery()
-        }
-    }
-
-    private fun loadImageFromDatabase(imageUrl: String?) {
-        if (!imageUrl.isNullOrEmpty()) {
-            Picasso.get().load(imageUrl).into(imageViewProfile)
-        } else {
-            loadDefaultProfileImage()
-        }
-    }
-
-    private fun loadDefaultProfileImage() {
-        storageReference.child(DEFAULT_IMAGE_PATH).downloadUrl.addOnSuccessListener { uri ->
-            Picasso.get().load(uri).into(imageViewProfile)
-        }.addOnFailureListener {
-            showToast("Error al cargar la imagen por defecto.")
         }
     }
 
@@ -122,28 +113,29 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
-                uploadImageToFirebase(uri)
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
+            val imagen = data.data
+            if (imagen != null) {
+                agregarImagenFirebase(imagen)
             }
         }
     }
 
-    private fun uploadImageToFirebase(uri: Uri) {
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val ref = storageReference.child("profileImages/${currentUser.uid}.jpg")
+    private fun agregarImagenFirebase(imagen: Uri) {
+        val email = FirebaseAuth.getInstance().currentUser?.email
+        val rutaImagen = FirebaseStorage.getInstance().reference.child("images").child("$email.jpg")
 
-            ref.putFile(uri).addOnSuccessListener {
-                ref.downloadUrl.addOnSuccessListener { downloadUri ->
+        rutaImagen.putFile(imagen)
+            .addOnSuccessListener {
+                rutaImagen.downloadUrl.addOnSuccessListener { uri ->
                     val profileUpdates = UserProfileChangeRequest.Builder()
-                        .setPhotoUri(downloadUri)
+                        .setPhotoUri(uri)
                         .build()
 
-                    currentUser.updateProfile(profileUpdates).addOnCompleteListener { task ->
+                    FirebaseAuth.getInstance().currentUser?.updateProfile(profileUpdates)?.addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            database.child(currentUser.uid).child("profileImage").setValue(downloadUri.toString())
-                            Picasso.get().load(downloadUri).into(imageViewProfile)
+                            database.child(auth.currentUser?.uid!!).child("images").setValue(uri.toString())
+                            descargarImagenFirebase(imageViewProfile)
                             showToast("Imagen de perfil actualizada.")
                         } else {
                             showToast("Error al actualizar la imagen de perfil.")
@@ -153,11 +145,27 @@ class ProfileActivity : AppCompatActivity() {
             }.addOnFailureListener {
                 showToast("Error al subir la imagen. Por favor, inténtalo de nuevo.")
             }
-        }
+    }
+
+    private fun descargarImagenFirebase(imagen: ImageView) {
+        val email = FirebaseAuth.getInstance().currentUser?.email
+        val rutaImagen = FirebaseStorage.getInstance().reference.child("images").child("$email.jpg")
+        val archivoLocal = File.createTempFile("tempImage", "jpg")
+
+        rutaImagen.getFile(archivoLocal)
+            .addOnSuccessListener {
+                val bitmap = BitmapFactory.decodeFile(archivoLocal.absolutePath)
+                imagen.setImageBitmap(bitmap)
+            }
+            .addOnFailureListener {
+                imagen.setImageResource(R.drawable.baseline_account_circle_24)
+            }
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onBackPressed() {
