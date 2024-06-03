@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
@@ -10,9 +11,12 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/more"
-        android:title="Más"
-        android:contentDescription="Más"
-        app:showAsAction="never" />
+        android:id="@+id/nav_favorites"
+        android:icon="@drawable/estrella3"
+        android:title="Favoritos"
+        android:contentDescription="Favoritos"
+        app:showAsAction="ifRoom" />
+
+
 
 </menu>

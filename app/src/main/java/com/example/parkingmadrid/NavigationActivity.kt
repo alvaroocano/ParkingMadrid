@@ -158,18 +158,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                     toggleSearchVisibility()
                     true
                 }
-                else -> false
-            }
-        }
-
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, NavigationActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
                 R.id.nav_favorites -> {
                     val intent = Intent(this, FavoritesActivity::class.java)
                     startActivity(intent)
@@ -178,6 +166,23 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 else -> false
             }
         }
+
+//        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
+//        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+//            when (item.itemId) {
+//                R.id.nav_home -> {
+//                    val intent = Intent(this, NavigationActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+//                R.id.nav_favorites -> {
+//                    val intent = Intent(this, FavoritesActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun toggleNightMode() {

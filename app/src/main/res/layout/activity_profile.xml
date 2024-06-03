@@ -13,7 +13,6 @@
         android:layout_height="150dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:onClick="changeProfileImage"
         android:layout_marginBottom="24dp" />
 
     <EditText
@@ -43,6 +42,5 @@
         android:text="Guardar cambios"
         android:background="@drawable/boton_redondeado"
         android:textColor="#FFFFFF"
-        android:onClick="saveChanges"
         android:layout_gravity="center" />
 </LinearLayout>
