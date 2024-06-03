@@ -13,12 +13,17 @@ import androidx.core.content.ContextCompat
 import com.example.parkingmadrid.Clases.ParkingInfo
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class FavoritesActivity : AppCompatActivity() {
 
     private lateinit var favoritesContainer: LinearLayout
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var userId: String
+
+    private val PREFS_NAME = "favorite_parkings_"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,18 +31,29 @@ class FavoritesActivity : AppCompatActivity() {
 
         favoritesContainer = findViewById(R.id.favoritesContainer)
 
+        mAuth = FirebaseAuth.getInstance()
+        userId = mAuth.currentUser?.uid.orEmpty()
+
         val favorites = loadFavoritesFromPreferences()
         handleResponse(favorites)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val favorites = loadFavoritesFromPreferences()
+        handleResponse(favorites)
+    }
+
+
     private fun loadFavoritesFromPreferences(): List<ParkingInfo> {
-        val sharedPref = getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
-        val jsonString = sharedPref.getString("favorite_parkings", "")
+        val sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
+        val jsonString = sharedPref.getString("favorite_parkings_$userId", "")
         if (jsonString.isNullOrEmpty()) return emptyList()
 
         val type = object : TypeToken<List<ParkingInfo>>() {}.type
         return Gson().fromJson(jsonString, type)
     }
+
 
     private fun handleResponse(favorites: List<ParkingInfo>) {
         favoritesContainer.removeAllViews()

@@ -34,7 +34,6 @@ import com.example.parkingmadrid.Clases.ApiClient.retrofit
 import com.example.parkingmadrid.Clases.MadridAPI
 import com.example.parkingmadrid.Clases.ParkingInfo
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
@@ -66,8 +65,11 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var sharedPref: SharedPreferences
     private var favoriteParkings: MutableList<ParkingInfo> = mutableListOf()
 
-    private val PREFS_NAME = "MyPrefsFile"
+    private val PREFS_NAME = "favorite_parkings_"
     private val API_LOADED_KEY = "api_loaded"
+
+    // Variable para almacenar el UID del usuario
+    private lateinit var userId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +99,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         // Obtener usuario actual
         val currentUser: FirebaseUser? = mAuth.currentUser
         currentUser?.let {
+            userId = it.uid  // Guardar el UID del usuario actual
             val name = it.displayName ?: "Nombre no disponible"
             val email = it.email ?: "Correo no disponible"
 
@@ -123,7 +126,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         madridAPI = retrofit.create(MadridAPI::class.java)
 
-        sharedPref = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
         favoriteParkings = loadFavoritesFromPreferences()
 
         val apiLoaded = sharedPref.getBoolean(API_LOADED_KEY, false)
@@ -232,7 +235,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
     private fun saveDataToCache(dataList: List<ParkingInfo>) {
         try {
-            val cacheFile = File(cacheDir, "parking_data")
+            val cacheFile = File(cacheDir, "parking_data_$userId")
             val fos = FileOutputStream(cacheFile)
             val oos = ObjectOutputStream(fos)
             oos.writeObject(dataList)
@@ -244,7 +247,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     }
 
     private fun loadDataFromCache(): List<ParkingInfo> {
-        val cacheFile = File(cacheDir, "parking_data")
+        val cacheFile = File(cacheDir, "parking_data_$userId")
         if (!cacheFile.exists()) {
             Toast.makeText(this, "Archivo de caché no encontrado", Toast.LENGTH_SHORT).show()
             return emptyList()
@@ -360,17 +363,16 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val editor = sharedPref.edit()
         val gson = Gson()
         val json = gson.toJson(favoriteParkings)
-        editor.putString("favorite_parkings", json)
+        editor.putString("favorite_parkings_$userId", json)
         editor.apply()
     }
 
     private fun loadFavoritesFromPreferences(): MutableList<ParkingInfo> {
         val gson = Gson()
-        val json = sharedPref.getString("favorite_parkings", null)
+        val json = sharedPref.getString("favorite_parkings_$userId", null)
         val type = object : TypeToken<MutableList<ParkingInfo>>() {}.type
         return gson.fromJson(json, type) ?: mutableListOf()
     }
-
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
