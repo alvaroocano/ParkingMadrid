@@ -91,6 +91,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
+        // Inicializar FirebaseAuth
         mAuth = FirebaseAuth.getInstance()
 
         val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
@@ -116,11 +117,11 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val currentUser: FirebaseUser? = mAuth.currentUser
         currentUser?.let {
             userId = it.uid  // Guardar el UID del usuario actual
-            val name = it.displayName ?: "Nombre no disponible"
             val email = it.email ?: "Correo no disponible"
-
-            navHeaderName.text = name
             navHeaderEmail.text = email
+
+            val nickname = it.displayName ?: "Nombre no disponible"
+            navHeaderName.text = nickname
 
             it.photoUrl?.let { uri ->
                 Glide.with(this)

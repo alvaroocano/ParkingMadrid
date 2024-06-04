@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/user2"
             android:drawablePadding="8dp"
-            android:hint="Usuario/Email"
+            android:hint="Email"
             android:inputType="text"
             android:textColor="@color/input_text"
             app:hintTextColor="@color/input_hint" />
