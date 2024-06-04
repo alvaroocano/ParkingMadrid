@@ -3,12 +3,14 @@ package com.example.parkingmadrid
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.User
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -25,6 +27,9 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private lateinit var editTextUsername: EditText
     private lateinit var editTextDOB: EditText
     private lateinit var editTextPassword: EditText
+    private lateinit var textInputLayoutPassword: TextInputLayout
+
+    private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +45,24 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         editTextUsername = findViewById(R.id.editTextUsername)
         editTextDOB = findViewById(R.id.editTextDOB)
         editTextPassword = findViewById(R.id.editTextPassword)
+        textInputLayoutPassword = findViewById(R.id.textInputLayoutPassword)
+
+        // Inicialmente, el icono es "ojo"
+        textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
+
+        // Manejar el clic del toggle de visibilidad de la contraseña
+        textInputLayoutPassword.setEndIconOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                editTextPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.view2) // Drawable para ojo tachado
+            } else {
+                editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.view) // Drawable para ojo
+            }
+            // Para asegurar que el cursor permanezca al final del texto después de cambiar el inputType
+            editTextPassword.setSelection(editTextPassword.text.length)
+        }
 
         // Botón de registro
         val btnRegistrarse: Button = findViewById(R.id.buttonRegistrarse)

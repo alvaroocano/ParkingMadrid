@@ -83,25 +83,13 @@ class MainActivity : AppCompatActivity() {
 
         val textViewForgotPassword: TextView = findViewById(R.id.textViewForgotPassword)
         textViewForgotPassword.setOnClickListener {
-            val email = editTextUsernameOrEmail.text.toString().trim()
-            if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                resetPassword(email)
-            } else {
-                Toast.makeText(this, "Por favor, ingrese un correo electrónico válido.", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
+            startActivity(intent)
         }
+
     }
 
-    private fun resetPassword(email: String) {
-        mAuth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Correo de restablecimiento de contraseña enviado.", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Error al enviar el correo de restablecimiento de contraseña.", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
+
 
     private fun signIn() {
         val usernameOrEmail = editTextUsernameOrEmail.text.toString()

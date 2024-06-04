@@ -135,7 +135,7 @@
         android:hint="Contraseña"
         android:inputType="textPassword"/>
 
-</com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
     android:id="@+id/buttonRegistrarse"
