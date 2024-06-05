@@ -52,6 +52,7 @@ class ProfileActivity : AppCompatActivity() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             editTextEmail.setText(currentUser.email)
+            editTextName.setText(currentUser.displayName)
             loadUserProfile()
         }
 

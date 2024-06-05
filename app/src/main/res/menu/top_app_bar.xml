@@ -17,6 +17,11 @@
         android:contentDescription="Favoritos"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@drawable/map"
+        android:title="Ver Mapa"
+        app:showAsAction="ifRoom"/>
 
 
 </menu>

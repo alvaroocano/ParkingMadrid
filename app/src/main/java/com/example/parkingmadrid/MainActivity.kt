@@ -3,6 +3,7 @@ package com.example.parkingmadrid
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -16,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.*
 import com.google.firebase.database.*
@@ -28,7 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextUsernameOrEmail: EditText
     private lateinit var editTextPassword: EditText
     private lateinit var database: FirebaseDatabase
+    private lateinit var textInputLayoutPassword: TextInputLayout
 
+    private var isPasswordVisible = false
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         editTextUsernameOrEmail = findViewById(R.id.editTextUsername)
         editTextPassword = findViewById(R.id.editTextPassword)
+        textInputLayoutPassword = findViewById(R.id.textInputLayoutPassword)
 
         val btnIniciarSesion: Button = findViewById(R.id.buttonLogin)
         btnIniciarSesion.setOnClickListener {
@@ -85,6 +90,24 @@ class MainActivity : AppCompatActivity() {
         textViewForgotPassword.setOnClickListener {
             val intent = Intent(this, ForgotPasswordActivity::class.java)
             startActivity(intent)
+        }
+
+
+        // Inicialmente, el icono es "ojo"
+        textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
+
+        // Manejar el clic del toggle de visibilidad de la contraseña
+        textInputLayoutPassword.setEndIconOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                editTextPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver) // Drawable para ojo tachado
+            } else {
+                editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.view) // Drawable para ojo
+            }
+            // Para asegurar que el cursor permanezca al final del texto después de cambiar el inputType
+            editTextPassword.setSelection(editTextPassword.text.length)
         }
 
     }

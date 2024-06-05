@@ -184,6 +184,11 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                     startActivity(intent)
                     true
                 }
+                R.id.nav_map -> { // Añadir un nuevo item en el menú para el mapa
+                    val intent = Intent(this, MapsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
                 else -> false
             }
         }
@@ -473,6 +478,16 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 finish()
+                return true
+            }
+            R.id.nav_favorites -> {
+                val intent = Intent(this, FavoritesActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.nav_nearby_parking -> {
+                val intent = Intent(this, MapsActivity::class.java)
+                startActivity(intent)
                 return true
             }
             R.id.nav_logout -> {

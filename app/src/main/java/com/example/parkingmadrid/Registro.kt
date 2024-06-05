@@ -56,7 +56,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
                 editTextPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                textInputLayoutPassword.setEndIconDrawable(R.drawable.view2) // Drawable para ojo tachado
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver) // Drawable para ojo tachado
             } else {
                 editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 textInputLayoutPassword.setEndIconDrawable(R.drawable.view) // Drawable para ojo
