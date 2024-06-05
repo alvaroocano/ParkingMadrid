@@ -48,6 +48,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import retrofit2.Call
@@ -74,7 +75,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var sharedPref: SharedPreferences
     private var favoriteParkings: MutableList<ParkingInfo> = mutableListOf()
     private val CHANNEL_ID = "favoritos_channel"
-    private val notificationId = 1234  // Puedes elegir cualquier número de identificación único
+    private val notificationId = 1234
     private val CHANNEL_NAME = "Favoritos"
     private val CHANNEL_DESCRIPTION = "Notificaciones de guardado en favoritos"
     private val PERMISSION_REQUEST_CODE = 1001
@@ -84,15 +85,15 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private val PREFS_NAME = "favorite_parkings_"
     private val API_LOADED_KEY = "api_loaded"
 
-    // Variable para almacenar el UID del usuario
     private lateinit var userId: String
+    private lateinit var database: FirebaseDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        // Inicializar FirebaseAuth
         mAuth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance()
 
         val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
         setSupportActionBar(toolbar)
@@ -100,6 +101,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
         navigationView.setNavigationItemSelectedListener(this)
+
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -113,17 +115,16 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val navHeaderEmail = headerView.findViewById<TextView>(R.id.nav_header_email)
         val themeToggle = headerView.findViewById<ImageView>(R.id.theme_toggle)
 
+        loadUserDetails(navHeaderName)
+
         // Obtener usuario actual
         val currentUser: FirebaseUser? = mAuth.currentUser
         currentUser?.let {
-            userId = it.uid  // Guardar el UID del usuario actual
+            userId = it.uid
             val email = it.email ?: "Correo no disponible"
             navHeaderEmail.text = email
 
-            val nickname = it.displayName ?: "Nombre no disponible"
-            navHeaderName.text = nickname
-
-            it.photoUrl?.let { uri ->
+                    it.photoUrl?.let { uri ->
                 Glide.with(this)
                     .load(uri)
                     .circleCrop()
@@ -483,4 +484,21 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         return true
     }
 
+    private fun loadUserDetails(navUsername: TextView) {
+        val currentUser = mAuth.currentUser
+        currentUser?.let {
+            navUsername.text = it.displayName
+
+            database.reference.child("users").child(it.uid).child("username").get()
+                .addOnSuccessListener { snapshot ->
+                    val nickname = snapshot.getValue(String::class.java)
+                    if (!nickname.isNullOrEmpty()) {
+                        navUsername.text =
+                            nickname
+                    }
+                }.addOnFailureListener {
+
+                }
+        }
+    }
 }

@@ -2,7 +2,6 @@ package com.example.parkingmadrid
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +11,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.parkingmadrid.Clases.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.DatabaseReference
@@ -20,10 +18,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.File
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.concurrent.Executors
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -53,20 +47,12 @@ class ProfileActivity : AppCompatActivity() {
         imageViewProfile = findViewById(R.id.imageViewProfile)
         val buttonSave = findViewById<Button>(R.id.buttonSave)
         descargarImagenFirebase(imageViewProfile)
+
         // Obtener datos del usuario y mostrarlos en las vistas
         val currentUser = auth.currentUser
         if (currentUser != null) {
             editTextEmail.setText(currentUser.email)
-            database.child(currentUser.uid).get().addOnSuccessListener { it ->
-                val user = it.getValue(User::class.java)
-                user?.let {
-                    editTextName.setText(it.fullName)
-                    // Cargar imagen del perfil
-
-                }
-            }.addOnFailureListener {
-                showToast("Error al obtener los datos del usuario.")
-            }
+            loadUserProfile()
         }
 
         // Asignar listener al botón de guardar cambios
@@ -77,6 +63,22 @@ class ProfileActivity : AppCompatActivity() {
         // Asignar listener al imageViewProfile para cambiar la imagen del perfil
         imageViewProfile.setOnClickListener {
             openGallery()
+        }
+    }
+
+    private fun loadUserProfile() {
+        val currentUser = auth.currentUser
+        currentUser?.let {
+            database.child(it.uid).child("username").get().addOnSuccessListener { snapshot ->
+                val nickname = snapshot.getValue(String::class.java)
+                if (!nickname.isNullOrEmpty()) {
+                    editTextName.setText(nickname)
+                } else {
+                    editTextName.setText(it.displayName)
+                }
+            }.addOnFailureListener {
+
+            }
         }
     }
 
@@ -91,7 +93,7 @@ class ProfileActivity : AppCompatActivity() {
 
             currentUser.updateProfile(profileUpdate).addOnCompleteListener { profileTask ->
                 if (profileTask.isSuccessful) {
-                    database.child(currentUser.uid).child("fullName").setValue(newName)
+                    database.child(currentUser.uid).child("username").setValue(newName)
                     showToast("Cambios guardados exitosamente.")
                     val intent = Intent(this, NavigationActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK

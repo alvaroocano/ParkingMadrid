@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parkingmadrid.Clases.User
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Calendar
@@ -123,7 +124,16 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
                         usersRef.setValue(userData).addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                sendEmailVerification()
+                                val profileUpdates = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username)
+                                    .build()
+                                user.updateProfile(profileUpdates).addOnCompleteListener { profileTask ->
+                                    if (profileTask.isSuccessful) {
+                                        sendEmailVerification()
+                                    } else {
+                                        Toast.makeText(this, "Error al actualizar el perfil del usuario", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             } else {
                                 Toast.makeText(this, "Error al guardar datos del usuario", Toast.LENGTH_SHORT).show()
                             }
