@@ -223,6 +223,13 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         }
 
 
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        favoriteParkings = loadFavoritesFromPreferences()
+        handleResponse(dataList)
     }
 
     private fun toggleNightMode() {
@@ -424,21 +431,22 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         }
     }
 
-
-
     private fun saveFavoritesToPreferences() {
+        val sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
-        val gson = Gson()
-        val json = gson.toJson(favoriteParkings)
-        editor.putString("favorite_parkings_$userId", json)
+        val jsonString = Gson().toJson(favoriteParkings)
+        editor.putString("favorite_parkings_$userId", jsonString)
         editor.apply()
     }
 
     private fun loadFavoritesFromPreferences(): MutableList<ParkingInfo> {
-        val gson = Gson()
-        val json = sharedPref.getString("favorite_parkings_$userId", null)
-        val type = object : TypeToken<MutableList<ParkingInfo>>() {}.type
-        return gson.fromJson(json, type) ?: mutableListOf()
+        val sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
+        val jsonString = sharedPref.getString("favorite_parkings_$userId", "")
+        if (jsonString.isNullOrEmpty()) return mutableListOf()
+
+        val type = object : TypeToken<List<ParkingInfo>>() {}.type
+        val favoriteList: List<ParkingInfo> = Gson().fromJson(jsonString, type)
+        return favoriteList.toMutableList()
     }
 
     @SuppressLint("MissingSuperCall")
@@ -480,23 +488,28 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 finish()
                 return true
             }
+
             R.id.nav_favorites -> {
                 val intent = Intent(this, FavoritesActivity::class.java)
                 startActivity(intent)
                 return true
             }
+
             R.id.nav_nearby_parking -> {
                 val intent = Intent(this, MapsActivity::class.java)
                 startActivity(intent)
                 return true
             }
+
             R.id.nav_logout -> {
                 showLogoutConfirmationDialog()
                 return true
             }
+
+            else -> {
+                return false
+            }
         }
-        drawerLayout.closeDrawer(GravityCompat.START)
-        return true
     }
 
     private fun loadUserDetails(navUsername: TextView) {
@@ -516,4 +529,22 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 }
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_FAVORITES && resultCode == RESULT_OK) {
+            favoriteParkings = loadFavoritesFromPreferences()
+            updateFavoriteIcons()
+        }
+    }
+
+    private fun updateFavoriteIcons() {
+        cardContainer.removeAllViews()
+        handleResponse(dataList)
+    }
+
+    companion object {
+        const val REQUEST_CODE_FAVORITES = 1
+    }
+
 }

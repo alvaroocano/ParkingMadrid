@@ -107,9 +107,11 @@ class FavoritesActivity : AppCompatActivity() {
             if (isFavorite(item)) {
                 removeFavorite(item)
                 favoriteButton.setImageResource(R.drawable.estrella)
+                setResultForFavoritesChanged()
             } else {
                 addFavorite(item)
                 favoriteButton.setImageResource(R.drawable.estrella2)
+                setResultForFavoritesChanged()
             }
         }
 
@@ -139,5 +141,10 @@ class FavoritesActivity : AppCompatActivity() {
         val jsonString = Gson().toJson(favorites)
         editor.putString("favorite_parkings_$userId", jsonString)
         editor.apply()
+    }
+
+    private fun setResultForFavoritesChanged() {
+        val resultIntent = Intent()
+        setResult(RESULT_OK, resultIntent)
     }
 }
