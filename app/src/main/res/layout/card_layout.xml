@@ -68,7 +68,6 @@
                 android:id="@+id/button_favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_star_empty"
                 android:background="@null"
                 android:contentDescription="Favorito"
                 android:layout_marginStart="160dp" />

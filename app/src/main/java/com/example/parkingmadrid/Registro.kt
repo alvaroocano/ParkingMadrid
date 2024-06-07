@@ -40,7 +40,6 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
         storage = FirebaseStorage.getInstance()
 
-        // Inicializar EditTexts
         editTextFirstName = findViewById(R.id.editTextFirstName)
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextUsername = findViewById(R.id.editTextUsername)
@@ -48,30 +47,26 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         editTextPassword = findViewById(R.id.editTextPassword)
         textInputLayoutPassword = findViewById(R.id.textInputLayoutPassword)
 
-        // Inicialmente, el icono es "ojo"
         textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
 
-        // Manejar el clic del toggle de visibilidad de la contraseña
         textInputLayoutPassword.setEndIconOnClickListener {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
                 editTextPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver) // Drawable para ojo tachado
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver)
             } else {
                 editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                textInputLayoutPassword.setEndIconDrawable(R.drawable.view) // Drawable para ojo
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
             }
-            // Para asegurar que el cursor permanezca al final del texto después de cambiar el inputType
+
             editTextPassword.setSelection(editTextPassword.text.length)
         }
 
-        // Botón de registro
         val btnRegistrarse: Button = findViewById(R.id.buttonRegistrarse)
         btnRegistrarse.setOnClickListener {
             registrarUsuario()
         }
 
-        // Inicializar EditText para la fecha de nacimiento
         editTextDOB.setOnClickListener { showDatePickerDialog() }
     }
 
@@ -107,17 +102,14 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             return
         }
 
-        // Registrar al usuario en Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Registro exitoso
                     val user = mAuth.currentUser
                     user?.let {
                         val userId = it.uid
                         val usersRef = database.reference.child("users").child(userId)
 
-                        // URL de la imagen predeterminada
                         val defaultProfileImageUrl = "gs://parking-madrid-fc293.appspot.com/user.png"
 
                         val userData = User(dob, firstName, username, email, defaultProfileImageUrl)
@@ -140,7 +132,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Ya existe una cuenta con ese email", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -151,9 +143,8 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             ?.addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Correo de verificación enviado a ${user.email}", Toast.LENGTH_SHORT).show()
-                    // Cerrar sesión del usuario
+
                     mAuth.signOut()
-                    // Redirigir al usuario a la actividad de inicio de sesión
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -215,7 +206,7 @@ class Registro : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(this, this, year, month, dayOfMonth)
-        datePickerDialog.datePicker.maxDate = Calendar.getInstance().timeInMillis // Deshabilitar fechas futuras
+        datePickerDialog.datePicker.maxDate = Calendar.getInstance().timeInMillis
         datePickerDialog.show()
     }
 }

@@ -21,5 +21,4 @@
     <color name="nav_header_background">#424242</color>
     <color name="nav_header_name_color">#FFFFFF</color>
     <color name="nav_header_email_color">#BDBDBD</color>
-<!--    <color name="card_stroke_color">#FF0000</color>-->
 </resources>

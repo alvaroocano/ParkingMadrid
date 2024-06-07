@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -38,7 +39,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Correo de restablecimiento de contraseña enviado.", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Error al enviar el correo de restablecimiento de contraseña.", Toast.LENGTH_SHORT).show()
+                    if (task.exception is FirebaseAuthInvalidUserException) {
+                        Toast.makeText(this, "No existe una cuenta con ese correo electrónico.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Error al enviar el correo de restablecimiento de contraseña.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
     }

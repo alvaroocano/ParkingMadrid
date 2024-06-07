@@ -28,7 +28,6 @@
                 android:background="@color/background_color_navigation"
                 android:textColor="@color/text_color" />
 
-            <!-- Buscador -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,15 +87,6 @@
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
-<!--        <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--            android:id="@+id/bottom_navigation"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="bottom"-->
-<!--            app:menu="@menu/bottom_navigation_menu"-->
-<!--            android:background="@color/background_color"-->
-<!--            app:itemIconTint="@color/text_color"-->
-<!--            app:itemTextColor="@color/text_color" />-->
 
         <ProgressBar
             android:id="@+id/progressBar"

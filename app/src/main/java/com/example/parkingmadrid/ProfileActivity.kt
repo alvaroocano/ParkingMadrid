@@ -53,7 +53,6 @@ class ProfileActivity : AppCompatActivity() {
 
         descargarImagenFirebase(imageViewProfile)
 
-        // Obtener datos del usuario y mostrarlos en las vistas
         val currentUser = auth.currentUser
         if (currentUser != null) {
             editTextEmail.setText(currentUser.email)
@@ -61,12 +60,10 @@ class ProfileActivity : AppCompatActivity() {
             loadUserProfile()
         }
 
-        // Asignar listener al botón de guardar cambios
         buttonSave.setOnClickListener {
             saveChanges()
         }
 
-        // Asignar listener al imageViewProfile para cambiar la imagen del perfil
         imageViewProfile.setOnClickListener {
             openGallery()
         }

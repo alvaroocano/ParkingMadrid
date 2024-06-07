@@ -6,5 +6,5 @@
     <dimen name="card_corner_radius">16dp</dimen>
     <dimen name="card_elevation">8dp</dimen>
     <dimen name="card_stroke_width">2dp</dimen>
-    <dimen name="card_margin_bottom">8dp</dimen> <!-- Agrega el margen inferior aquí -->
+    <dimen name="card_margin_bottom">8dp</dimen>
 </resources>
