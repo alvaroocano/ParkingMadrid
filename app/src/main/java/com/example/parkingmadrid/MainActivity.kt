@@ -168,10 +168,13 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
+    private lateinit var lastLoginResult: LoginResult
+
     private fun signInWithFacebook() {
         LoginManager.getInstance().logInWithReadPermissions(this, listOf("email", "public_profile"))
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
+                lastLoginResult = loginResult
                 handleFacebookAccessToken(loginResult.accessToken)
             }
 
@@ -185,22 +188,48 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun handleFacebookUserCollision(email: String, loginResult: LoginResult) {
+        FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val result = task.result
+                    if (result?.signInMethods?.contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD) == true) {
+                    } else if (result?.signInMethods?.contains(FacebookAuthProvider.PROVIDER_ID) == true) {
+                        val credential = FacebookAuthProvider.getCredential(loginResult.accessToken.token)
+                        mAuth.currentUser?.linkWithCredential(credential)
+                            ?.addOnCompleteListener { linkTask ->
+                                if (linkTask.isSuccessful) {
+                                    val intent = Intent(this, NavigationActivity::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    Toast.makeText(this, "Error al fusionar cuentas: ${linkTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                    }
+                } else {
+                    Toast.makeText(this, "Error al obtener métodos de inicio de sesión para el correo electrónico: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = mAuth.currentUser
-                    if (user?.isEmailVerified == true) {
-                        val intent = Intent(this, NavigationActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        Toast.makeText(this, "Por favor, verifica tu correo electrónico.", Toast.LENGTH_SHORT).show()
-                        mAuth.signOut()
-                    }
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
-                    Toast.makeText(this, "Error en la autenticación con Facebook.", Toast.LENGTH_SHORT).show()
+                    val exception = task.exception
+                    if (exception is FirebaseAuthUserCollisionException) {
+                        exception.email?.let { email ->
+                            handleFacebookUserCollision(email, lastLoginResult)
+                        }
+                    } else {
+                        Toast.makeText(this, "Error en la autenticación con Facebook.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
     }

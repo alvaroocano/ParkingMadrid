@@ -59,6 +59,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation ("com.squareup.retrofit2:retrofit:2.11.0")
     implementation ("com.facebook.android:facebook-android-sdk:latest.release")
+    implementation ("com.google.firebase:firebase-auth:21.0.1")
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
