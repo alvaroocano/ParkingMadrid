@@ -117,7 +117,6 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         loadUserDetails(navHeaderName)
 
-        // Obtener usuario actual
         val currentUser: FirebaseUser? = mAuth.currentUser
         currentUser?.let {
             userId = it.uid
@@ -193,37 +192,14 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
 
-//        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
-//        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-//            when (item.itemId) {
-//                R.id.nav_home -> {
-//                    val intent = Intent(this, NavigationActivity::class.java)
-//                    startActivity(intent)
-//                    true
-//                }
-//                R.id.nav_favorites -> {
-//                    val intent = Intent(this, FavoritesActivity::class.java)
-//                    startActivity(intent)
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-
-
-        // Crear el canal de notificación
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = CHANNEL_DESCRIPTION
             }
-            // Registrar el canal con el sistema
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-
-
-
     }
 
     override fun onResume() {
@@ -411,19 +387,16 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // Crear una notificación
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.icono2)
                 .setContentTitle("Favoritos")
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-            // Mostrar la notificación
             with(NotificationManagerCompat.from(context)) {
                 notify(notificationId, notificationBuilder.build())
             }
         } else {
-            // Si no tienes el permiso, solicítalo al usuario
             ActivityCompat.requestPermissions(
                 context as Activity,
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),

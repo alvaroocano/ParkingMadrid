@@ -34,17 +34,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        // Configurar el mapa
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // Inicializar FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Inicializar API
         madridAPI = retrofit.create(MadridAPI::class.java)
 
-        // Obtener datos de la API
         fetchData()
     }
 
@@ -104,7 +100,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .title(parking.name)
                     .snippet("Sitios libres: ${parking.occupations?.firstOrNull()?.free ?: "N/A"}"))
             } catch (e: NumberFormatException) {
-                // Maneja el error si la conversión falla
                 Toast.makeText(this, "Error en los datos de latitud o longitud", Toast.LENGTH_SHORT).show()
             }
         }

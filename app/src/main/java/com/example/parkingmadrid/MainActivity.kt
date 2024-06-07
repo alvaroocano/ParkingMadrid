@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         database = FirebaseDatabase.getInstance("https://parking-madrid-fc293-default-rtdb.europe-west1.firebasedatabase.app")
 
-        // Verificar si el usuario ya ha iniciado sesión
         val currentUser = mAuth.currentUser
         if (currentUser != null && currentUser.isEmailVerified) {
             val intent = Intent(this, NavigationActivity::class.java)
@@ -70,10 +69,8 @@ class MainActivity : AppCompatActivity() {
             signInWithGoogle()
         }
 
-        // Inicializar el CallbackManager de Facebook
         callbackManager = CallbackManager.Factory.create()
 
-        // Configurar el botón de inicio de sesión con Facebook
         val buttonLoginFacebook = findViewById<ImageButton>(R.id.buttonLoginFacebook)
         buttonLoginFacebook.setOnClickListener {
             signInWithFacebook()
@@ -92,21 +89,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-        // Inicialmente, el icono es "ojo"
         textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
 
-        // Manejar el clic del toggle de visibilidad de la contraseña
         textInputLayoutPassword.setEndIconOnClickListener {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
                 editTextPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver) // Drawable para ojo tachado
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.ver)
             } else {
                 editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                textInputLayoutPassword.setEndIconDrawable(R.drawable.view) // Drawable para ojo
+                textInputLayoutPassword.setEndIconDrawable(R.drawable.view)
             }
-            // Para asegurar que el cursor permanezca al final del texto después de cambiar el inputType
             editTextPassword.setSelection(editTextPassword.text.length)
         }
 
@@ -119,18 +112,15 @@ class MainActivity : AppCompatActivity() {
         val password = editTextPassword.text.toString()
 
         if (usernameOrEmail.isNotEmpty() && password.isNotEmpty()) {
-            // Verificar si el usuario está registrado con correo electrónico y contraseña
             val usersRef = database.reference.child("usuarios")
             usersRef.orderByChild("nombreUsuario").equalTo(usernameOrEmail).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        // El usuario se ha registrado con nombre de usuario
                         for (userSnapshot in dataSnapshot.children) {
                             val email = userSnapshot.child("email").value.toString()
                             signInWithEmailAndPassword(email, password)
                         }
                     } else {
-                        // Intentar iniciar sesión con correo electrónico
                         signInWithEmailAndPassword(usernameOrEmail, password)
                     }
                 }
@@ -140,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         } else {
-            Toast.makeText(this, "Por favor, ingrese nombre de usuario/correo y contraseña.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Por favor, ingrese correo y contraseña.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -179,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCancel() {
-                // El inicio de sesión con Facebook se canceló
+                Toast.makeText(this@MainActivity, "Autenticación cancelada.", Toast.LENGTH_SHORT).show()
             }
 
             override fun onError(error: FacebookException) {
@@ -237,10 +227,8 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Pasar el resultado al CallbackManager de Facebook
         callbackManager.onActivityResult(requestCode, resultCode, data)
 
-        // Resultado del inicio de sesión con Google
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
