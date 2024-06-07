@@ -18,12 +18,15 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.File
+import android.view.View
+import android.widget.ProgressBar
 
 class ProfileActivity : AppCompatActivity() {
 
     private lateinit var editTextName: EditText
     private lateinit var editTextEmail: EditText
     private lateinit var imageViewProfile: ImageView
+    private lateinit var progressBar: ProgressBar
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var storageReference: StorageReference
@@ -45,7 +48,9 @@ class ProfileActivity : AppCompatActivity() {
         editTextName = findViewById(R.id.editTextName)
         editTextEmail = findViewById(R.id.editTextEmail)
         imageViewProfile = findViewById(R.id.imageViewProfile)
+        progressBar = findViewById(R.id.progressBar)
         val buttonSave = findViewById<Button>(R.id.buttonSave)
+
         descargarImagenFirebase(imageViewProfile)
 
         // Obtener datos del usuario y mostrarlos en las vistas
@@ -128,6 +133,8 @@ class ProfileActivity : AppCompatActivity() {
         val email = FirebaseAuth.getInstance().currentUser?.email
         val rutaImagen = FirebaseStorage.getInstance().reference.child("images").child("$email.jpg")
 
+        progressBar.visibility = View.VISIBLE
+
         rutaImagen.putFile(imagen)
             .addOnSuccessListener {
                 rutaImagen.downloadUrl.addOnSuccessListener { uri ->
@@ -143,10 +150,12 @@ class ProfileActivity : AppCompatActivity() {
                         } else {
                             showToast("Error al actualizar la imagen de perfil.")
                         }
+                        progressBar.visibility = View.GONE
                     }
                 }
             }.addOnFailureListener {
                 showToast("Error al subir la imagen. Por favor, inténtalo de nuevo.")
+                progressBar.visibility = View.GONE
             }
     }
 
@@ -155,13 +164,17 @@ class ProfileActivity : AppCompatActivity() {
         val rutaImagen = FirebaseStorage.getInstance().reference.child("images").child("$email.jpg")
         val archivoLocal = File.createTempFile("tempImage", "jpg")
 
+        progressBar.visibility = View.VISIBLE
+
         rutaImagen.getFile(archivoLocal)
             .addOnSuccessListener {
                 val bitmap = BitmapFactory.decodeFile(archivoLocal.absolutePath)
                 imagen.setImageBitmap(bitmap)
+                progressBar.visibility = View.GONE
             }
             .addOnFailureListener {
                 imagen.setImageResource(R.drawable.baseline_account_circle_24)
+                progressBar.visibility = View.GONE
             }
     }
 
