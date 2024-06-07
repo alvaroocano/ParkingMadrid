@@ -389,6 +389,7 @@ class NavigationActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         return cardView
     }
 
+
     private fun addFavorite(item: ParkingInfo) {
         if (!favoriteParkings.contains(item)) {
             favoriteParkings.add(item)

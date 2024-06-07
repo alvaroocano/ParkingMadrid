@@ -37,13 +37,31 @@
             android:background="@color/background_color">
 
             <LinearLayout
-                android:id="@+id/favoritesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingTop="16dp">
-            </LinearLayout>
 
+                <TextView
+                    android:id="@+id/emptyMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No hay favoritos"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:padding="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/favoritesContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="16dp">
+                </LinearLayout>
+
+            </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
         <ProgressBar

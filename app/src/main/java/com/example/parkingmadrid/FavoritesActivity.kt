@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken
 class FavoritesActivity : AppCompatActivity() {
 
     private lateinit var favoritesContainer: LinearLayout
+    private lateinit var emptyMessage: TextView
     private lateinit var mAuth: FirebaseAuth
     private lateinit var userId: String
 
@@ -31,6 +32,7 @@ class FavoritesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_favorites)
 
         favoritesContainer = findViewById(R.id.favoritesContainer)
+        emptyMessage = findViewById(R.id.emptyMessage)
 
         mAuth = FirebaseAuth.getInstance()
         userId = mAuth.currentUser?.uid.orEmpty()
@@ -45,7 +47,6 @@ class FavoritesActivity : AppCompatActivity() {
         handleResponse(favorites)
     }
 
-
     private fun loadFavoritesFromPreferences(): List<ParkingInfo> {
         val sharedPref = getSharedPreferences("$PREFS_NAME$userId", Context.MODE_PRIVATE)
         val jsonString = sharedPref.getString("favorite_parkings_$userId", "")
@@ -55,12 +56,16 @@ class FavoritesActivity : AppCompatActivity() {
         return Gson().fromJson(jsonString, type)
     }
 
-
     private fun handleResponse(favorites: List<ParkingInfo>) {
         favoritesContainer.removeAllViews()
-        favorites.forEach { item ->
-            val card = createCardForParking(this, item)
-            favoritesContainer.addView(card)
+        if (favorites.isEmpty()) {
+            emptyMessage.visibility = View.VISIBLE
+        } else {
+            emptyMessage.visibility = View.GONE
+            favorites.forEach { item ->
+                val card = createCardForParking(this, item)
+                favoritesContainer.addView(card)
+            }
         }
     }
 
