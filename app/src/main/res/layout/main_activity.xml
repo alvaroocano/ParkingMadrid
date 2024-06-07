@@ -11,14 +11,14 @@
 
     <ImageView
         android:id="@+id/imageLogo"
-        android:layout_width="182dp"
-        android:layout_height="171dp"
+        android:layout_width="133dp"
+        android:layout_height="120dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/icono"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/icono" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/usernameTextInputLayoutLogin"
@@ -113,33 +113,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/textViewOr" />
 
-    <TextView
-        android:id="@+id/textViewForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/buttonRegister"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="84dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:text="¿Olvidaste tu contraseña?"
-        android:textColor="@android:color/holo_blue_dark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/buttonRegister" />
 
     <LinearLayout
+        android:id="@+id/buttonGoogleFacebook"
         android:layout_width="198dp"
         android:layout_height="84dp"
-        android:layout_below="@id/textViewForgotPassword"
+        android:layout_below="@id/buttonRegister"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="95dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="56dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/textViewForgotPassword">
+        app:layout_constraintTop_toTopOf="@id/buttonRegister">
 
         <ImageButton
             android:id="@+id/buttonLoginGoogle"
@@ -163,4 +148,19 @@
             android:padding="16dp"
             android:src="@drawable/facebook" />
     </LinearLayout>
+    <TextView
+        android:id="@+id/textViewForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonRegister"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="84dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="¿Olvidaste tu contraseña?"
+        android:textColor="@android:color/holo_blue_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/buttonGoogleFacebook" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
